@@ -14,7 +14,6 @@
   --muted:     #5c7382;                 /* secondary text on white */
   --shadow:    0 6px 22px rgba(8,32,47,.16);
   --r:         12px;
-  --bar-h:     56px;
   --tab-h:     60px;                   /* the MAP / DISPLAYS bar, on a phone */
   font-synthesis-weight: none;
 }
@@ -287,27 +286,9 @@ html, body {
 }
 
 /* ---------- chrome ---------- */
-.bar {
-  position: absolute;
-  top: 0; left: 0; right: 0;
-  height: var(--bar-h);
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  padding: 0 12px;
-  background: linear-gradient(180deg, #fff 0%, rgba(255,255,255,.93) 62%, rgba(255,255,255,0) 100%);
-  pointer-events: none;
-  z-index: 5;
-}
-.bar > * { pointer-events: auto; }
-
-.brand { display: flex; flex-direction: column; line-height: 1.15; min-width: 0; }
-.brand-k {
-  font-size: 15px; font-weight: 700; letter-spacing: -.01em;
-  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-}
-.brand-s { font-size: 11.5px; color: var(--muted); }
+/* No title bar: the section of the GoDaddy site this sits in carries the
+   heading, so the map runs to the top edge. (A "Holiday Light Show" strip
+   stood top-left until 28 Oct 2026.) */
 
 .btn {
   font: inherit;
@@ -732,16 +713,8 @@ html, body {
 .card-x:hover { background: none; opacity: 1; }
 .card-x:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
 
-/* The card lives in the panel now, so it needs no room made for it out on
-   the map. */
-@media (max-width: 460px) {
-  .brand-s { display: none; }
-}
-
-/* short embeds: tighten the top bar */
+/* short embeds */
 @media (max-height: 460px) {
-  :root { --bar-h: 46px; }
-  .brand-s { display: none; }
   /* The list is what the panel is for. On a short screen the logo and the
      credit give up their height to it rather than squeezing it out. */
   .panel-logo { width: 112px; }
@@ -763,7 +736,8 @@ html, body {
        above the sheet
 
    The map is framed in the room above the bar, so the opening view and the
-   zoom floor work off that height. `--sheet-h` is the open card's height,
+   zoom floor work off that height; it fills it, top edge at the top of the
+   screen and bottom edge on the bar. `--sheet-h` is the open card's height,
    published by app.js, so the zoom buttons ride up over it. */
 @media (max-width: 660px) {
   .stage { bottom: var(--tab-h); }

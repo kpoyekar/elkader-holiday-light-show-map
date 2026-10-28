@@ -114,11 +114,6 @@
     return n + (n === 1 ? ' display' : ' displays');
   }
 
-  (function brandCount() {
-    var el2 = document.getElementById('brandSub');
-    if (el2) el2.textContent = 'Elkader, Iowa \u00b7 ' + tally(PARTICIPANTS);
-  })();
-
   /* ---------- transform ---------- */
 
   function clamp(v, lo, hi) { return v < lo ? lo : v > hi ? hi : v; }
@@ -245,32 +240,26 @@
     apply();
   }
 
-  /* The map opens at OPEN of the height -- 80% -- and that is the floor as
-     well as the opening view: there is no zooming out past it.
+  /* The map opens at OPEN of the height -- all of it -- and that is the
+     floor as well as the opening view: there is no zooming out past it. Top
+     edge at the top of the box, bottom edge at its foot (on a phone, on the
+     MAP / DISPLAYS bar), no white above or below.
 
-     It was the full height until 28 Oct 2026, when Ketaki asked for the map
-     20% smaller; the fifth of the height that frees up shows as white above
-     and below the map, which is the price of it. The height is still the one
-     thing that never changes, whatever screen it is on: the map is always
-     the same fraction of the box it sits in, so the GoDaddy embed decides
-     its size.
+     The height is the one thing that never changes, whatever screen it is
+     on: the map is always the same fraction of the box it sits in, so the
+     GoDaddy embed decides its size. It stood at 0.8 for part of 28 Oct 2026
+     -- Ketaki asked for the map 20% smaller, then for it to meet the top and
+     bottom edges again -- so OPEN is still the one number to change.
 
      Wherever that leaves the map wider than the viewport -- a phone, or a
      short frame -- it runs off the sides and you pan across it. That is the
      right trade: shrinking the whole map to fit a narrow screen makes sixty
      business names unreadable, and reading them is the thing this page is
      for. */
-  var OPEN = 0.8;
-
-  /* On a phone the map fills the height instead: top edge under the title,
-     bottom edge on the MAP / DISPLAYS bar, no white above or below. The 80%
-     was asked for on the wide screen, where the map sits in a box on a page;
-     on a phone the whole screen is the box, and Ketaki asked on 28 Oct 2026
-     for the map to meet its edges. */
-  var OPEN_PHONE = 1;
+  var OPEN = 1;
 
   function minScale() {
-    return stage.clientHeight / cropPx().h * (isPhone() ? OPEN_PHONE : OPEN);
+    return stage.clientHeight / cropPx().h * OPEN;
   }
 
   function home() {

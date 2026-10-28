@@ -203,7 +203,10 @@ actually is, and that does not change.
 
 ### One number on the page: 50 displays
 
-The header and the count under the show logo both read **50 displays**.
+The count under the show logo reads **50 displays**. (It stood in the
+top-left header too, until the header went on 28 Oct 2026: the page sits in
+a section of the GoDaddy site that carries its own heading, so "Holiday Light
+Show · Elkader, Iowa · 50 displays" in the corner said it twice.)
 
 Counted in participants, called displays — Ketaki's wording. A business with
 two spots is one row in the list and counts once, and the two spots still to
@@ -501,22 +504,17 @@ The page fills whatever height it is given and never grows the document. That
 matters because it is embedded in a fixed-height iframe on the GoDaddy site,
 which clips anything taller than the height set there.
 
-**The map opens at 80% of the height on a wide screen, and cannot be zoomed
+**The map opens filling the height, on every screen, and cannot be zoomed
 out past it.** `minScale()` is `stage.clientHeight / cropPx().h * OPEN`, with
-`OPEN = 0.8`, and it is both the opening view and the floor `setScale()` clamps
-to — so the height is still the one thing that never changes, whatever screen
-the page is on: the map is always the same fraction of its box.
+`OPEN = 1`, and it is both the opening view and the floor `setScale()` clamps
+to — so the height is the one thing that never changes, whatever screen the
+page is on: top edge at the top of the box, bottom edge at its foot (on a
+phone, on the MAP / DISPLAYS bar), no white above or below.
 
-**On a phone it fills the height** (`OPEN_PHONE = 1`): top edge under the
-title, bottom edge on the MAP / DISPLAYS bar, no white above or below. The 80%
-was asked for where the map sits in a box on a page; on a phone the screen is
-the box, and Ketaki asked on 28 Oct 2026 for the map to meet its edges.
-
-It filled the height exactly until 28 Oct 2026, when Ketaki asked for the map
-20% smaller. The fifth that frees up shows as white above and below the map;
-that is the price of the smaller map, and her call. If the embed's box on the
-GoDaddy site ends up the wrong height for it, `OPEN` is the one number to
-change.
+`OPEN` stood at 0.8 for part of 28 Oct 2026 — Ketaki asked for the map 20%
+smaller, then for it to meet the top and bottom edges again — so if the
+embed's box on the GoDaddy site ever ends up the wrong height for it, `OPEN`
+is still the one number to change.
 
 Wherever filling the height leaves the map wider than the box — a phone, or a
 short frame — it runs off the sides and you pan across it. Shrinking the whole
