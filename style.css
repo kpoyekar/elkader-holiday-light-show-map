@@ -981,12 +981,18 @@ html, body {
     min-height: 0;
     overflow: hidden;
   }
+  /* The handle floats over the top edge rather than taking a strip of its
+     own, so the bulbs hang from the very edge of the sheet the way they
+     stand at the top edge of the card on a wide screen. The pill sits in
+     the middle, clear of the bulbs on the left and the x on the right. */
   .card-handle {
+    position: absolute;
+    left: 0; right: 0; top: 0;
+    z-index: 1;
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 100%;
-    height: 26px;
+    height: 22px;
     border: 0;
     padding: 0;
     background: none;
@@ -994,7 +1000,7 @@ html, body {
     -webkit-tap-highlight-color: transparent;
   }
   .card-handle span { display: block; width: 40px; height: 5px; border-radius: 3px; background: #cfd6dc; }
-  .hls > .card .card-x { top: 30px; right: 10px; }
+  .hls > .card .card-x { top: 7px; right: 10px; }
 
   /* The events page as a sheet: taller than a display card, since it is a
      page of dates, with the handle pulling it down to the title. app.js has
