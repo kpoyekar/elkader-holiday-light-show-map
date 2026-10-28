@@ -1,0 +1,167 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=5,viewport-fit=cover">
+<title>Elkader Holiday Light Show — Map</title>
+<meta name="description" content="Interactive map of the Elkader Holiday Light Show drive-through at the City Park and Campground. Find all 60 displays and who sponsored them.">
+<meta name="theme-color" content="#0d2a44">
+<link rel="stylesheet" href="style.css?v=e2212b35">
+</head>
+<body>
+
+<div class="hls" id="hls">
+
+  <!-- ===== the map ===== -->
+  <div class="stage" id="stage">
+    <div class="canvas" id="canvas">
+      <!-- The artwork, vector all the way through: every shape traced out of
+           the Canva export, so nothing here is a picture of a map. It carries
+           no lettering -- that is drawn over it, below. -->
+      <img class="basemap" id="basemap" src="assets/map.svg?v=e2212b35"
+           alt="Map of the Holiday Light Show route through the Elkader City Campground">
+      <!-- Every label on the map is drawn here as vector text, so it stays
+           sharp at any zoom. The artwork underneath carries no lettering. -->
+      <svg class="textlayer" id="textlayer" viewBox="0 0 792 612"
+           preserveAspectRatio="none" aria-hidden="true" focusable="false"></svg>
+      <div class="markers" id="markers"></div>
+    </div>
+  </div>
+
+  <!-- ===== top bar ===== -->
+  <header class="bar">
+    <div class="brand">
+      <span class="brand-k">Holiday Light Show</span>
+      <span class="brand-s" id="brandSub">Elkader, Iowa</span>
+    </div>
+  </header>
+
+  <!-- Which build you are looking at. Browsers cache this page hard and a
+       stale copy is indistinguishable from a fresh one, so the version is
+       printed where it can be read off the screen. _build/stamp.py writes the
+       text; app.js reveals it on preview hosts only, so it never reaches the
+       live site. -->
+  <p class="build" id="build" hidden>v81 &middot; 28 Oct 2026</p>
+
+  <!-- The sponsor credit and, to its right, the zoom buttons. The credit was
+       printed on the map itself, inside the loop; it lives out here now so it
+       never crowds a display and stays put whatever the map does. -->
+  <div class="corner">
+    <a class="credit" href="https://www.studiok8ki.com/" target="_blank" rel="noopener"
+       aria-label="Interactive map designed and sponsored by K8Ki Design Studio. Opens studiok8ki.com in a new tab.">
+      <span class="credit-l1">Interactive Map</span>
+      <span class="credit-l2">Designed &amp; Sponsored By</span>
+      <img class="credit-mark" src="assets/k8ki-logo.svg" alt="K8Ki" width="521" height="144">
+      <span class="credit-l3">Design Studio</span>
+    </a>
+    <div class="zoom">
+      <button class="btn btn-sq" id="zIn"  aria-label="Zoom in">+</button>
+      <button class="btn btn-sq" id="zOut" aria-label="Zoom out">&minus;</button>
+      <button class="btn btn-sq" id="zFit" aria-label="Back to the whole map">
+        <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M7 3H3v4M13 3h4v4M7 17H3v-4M13 17h4v-4" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"/></svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- ===== the display list =====
+       On a wide screen: not a drawer. It is always open and nothing closes
+       it -- no close button, no click outside, no Escape. The show's own logo
+       and the display count stand pinned at the top, the card is pinned at
+       the foot, and only the list between them scrolls. The sponsor credit
+       stands beside the zoom buttons, not down here.
+
+       On a phone: the DISPLAYS button at the foot of the screen brings it up
+       over the map, full screen, and MAP puts it away. The card is not in
+       here then -- app.js moves it out to be a sheet over the map -- and the
+       credit is pinned small at the foot, since the corner of the map that
+       carries it is off screen. -->
+  <aside class="panel" id="panel" aria-label="All displays">
+    <div class="panel-top">
+      <img class="panel-logo" src="assets/show-logo.webp?v=e2212b35" width="393" height="391"
+           alt="Elkader Holiday Light Show">
+      <!-- How many displays, and how many of them a search is showing. Under
+           the logo rather than down in the footer, where it read as part of
+           the sponsor credit. -->
+      <p class="panel-count" id="count"></p>
+    </div>
+    <div class="panel-head">
+      <label class="search">
+        <svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="9" cy="9" r="5.5" stroke="currentColor" stroke-width="2" fill="none"/><path d="M13.5 13.5 17 17" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        <input type="search" id="q" placeholder="Search a business or number" autocomplete="off" spellcheck="false">
+      </label>
+    </div>
+    <ul class="list" id="list"></ul>
+    <!-- ===== detail card =====
+         Docked at the foot of the list rather than floating over the map:
+         pick a name and the detail opens here, under the names, with the
+         bulb lit out on the map. -->
+    <div class="card" id="card" hidden>
+      <!-- On a phone the card is a sheet over the map, and this handle pulls
+           it down to just the name and back up. Hidden on a wide screen,
+           where the card is docked in the list and never moves. -->
+      <button class="card-handle" id="cardHandle" type="button" aria-label="Pull the card down or up"><span></span></button>
+      <button class="btn btn-sq btn-close card-x" id="cardX" aria-label="Close">&times;</button>
+      <!-- Number and wording abreast, as before. -->
+      <div class="card-main">
+        <span class="card-n" id="cardN"></span>
+        <div class="card-body">
+          <h2 class="card-name" id="cardName"></h2>
+        </div>
+      </div>
+      <!-- The logo gets a row of its own under them, where it has the whole
+           width of the panel to fill rather than a column beside the name.
+           Only the participants who sent one have it, so it is hidden when
+           there is nothing to show and the row closes up. -->
+      <img class="card-logo" id="cardLogo" alt="" hidden>
+      <div class="card-links" id="cardLinks" hidden></div>
+      <!-- Only on the spots nobody has taken yet: the card offers the spot
+           instead of naming a participant. -->
+      <a class="card-book" id="cardBook" target="_blank" rel="noopener" hidden></a>
+      <!-- Previous and Next say where they go: the spot and the name, so
+           you know what you are stepping to before you tap. -->
+      <div class="card-nav">
+        <button class="btn btn-ghost" id="prev">
+          <span class="nav-k" id="prevK">&larr; Previous</span>
+          <span class="nav-n" id="prevN"></span>
+        </button>
+        <button class="btn btn-ghost" id="next">
+          <span class="nav-k" id="nextK">Next &rarr;</span>
+          <span class="nav-n" id="nextN"></span>
+        </button>
+      </div>
+    </div>
+    <!-- The sponsor credit once more, small, at the foot of the list. Only on
+         a phone, where the list fills the screen and the corner of the map
+         that carries the credit on a wide screen is not on view. -->
+    <a class="credit credit-foot" href="https://www.studiok8ki.com/" target="_blank" rel="noopener"
+       aria-label="Interactive map designed and sponsored by K8Ki Design Studio. Opens studiok8ki.com in a new tab.">
+      <span class="credit-l1">Interactive Map</span>
+      <span class="credit-l2">Designed &amp; Sponsored By</span>
+      <img class="credit-mark" src="assets/k8ki-logo.svg" alt="K8Ki" width="521" height="144">
+      <span class="credit-l3">Design Studio</span>
+    </a>
+  </aside>
+
+  <!-- ===== on a phone: MAP / DISPLAYS =====
+       Two buttons across the foot of the screen. MAP shows the map; DISPLAYS
+       brings the list up over it, full screen. Hidden on a wide screen, where
+       the list stands beside the map and nothing needs switching. The DISPLAYS
+       icon is the map's own bulb, drawn in by app.js. -->
+  <nav class="tabs" aria-label="Map or the list of displays">
+    <button class="tab is-active" id="tabMap" type="button" aria-pressed="true">
+      <svg viewBox="0 0 20 20" aria-hidden="true" focusable="false"><path d="M3 5l5-2 4 2 5-2v12l-5 2-4-2-5 2z" stroke="currentColor" stroke-width="1.8" fill="none" stroke-linejoin="round"/></svg>
+      <span>Map</span>
+    </button>
+    <button class="tab" id="tabList" type="button" aria-pressed="false">
+      <span class="tab-bulb" id="tabBulb"></span>
+      <span>Displays</span>
+    </button>
+  </nav>
+
+
+</div>
+
+<script src="data.js?v=e2212b35"></script>
+<script src="app.js?v=e2212b35"></script>
+</body>
+</html>

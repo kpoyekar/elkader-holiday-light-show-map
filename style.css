@@ -1,0 +1,896 @@
+/* Elkader Holiday Light Show — interactive map
+   Built to fill whatever height it is given (it is embedded in an iframe on
+   the GoDaddy site), so nothing here may grow the page. */
+
+:root {
+  --navy:      #0d2a44;
+  --navy-2:    #14395b;
+  --navy-ink:  #08202f;
+  --ice:       #bcdcf0;
+  --gold:      #f3c05b;
+  --paper:     #f7f9fa;
+  --line:      rgba(255,255,255,.14);   /* hairlines on the dark panel */
+  --edge:      rgba(8,32,47,.12);       /* hairlines on the white ground */
+  --muted:     #5c7382;                 /* secondary text on white */
+  --shadow:    0 6px 22px rgba(8,32,47,.16);
+  --r:         12px;
+  --bar-h:     56px;
+  --tab-h:     60px;                   /* the MAP / DISPLAYS bar, on a phone */
+  font-synthesis-weight: none;
+}
+
+/* The map's own typeface, subset out of the Canva PDF so the live text matches
+   the printed signage exactly. Glacial Indifference is SIL OFL licensed. */
+/* One typeface everywhere: Proxima Nova, Ketaki's own files, subset to Latin
+   and served from here (assets/fonts). Regular and Bold are the two weights
+   the page uses. The Glacial Indifference subset the page shipped with stays
+   behind it as the fallback while the files load. */
+:root {
+  --font: "Proxima Nova", "GlacialIndifference", "Jost", "Futura",
+          "Century Gothic", -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+@font-face {
+  font-family: "Proxima Nova";
+  src: url("assets/fonts/proxima-nova-regular.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Proxima Nova";
+  src: url("assets/fonts/proxima-nova-bold.woff2") format("woff2");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "GlacialIndifference";
+  src: url("assets/fonts/glacial-indifference-subset.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+* { box-sizing: border-box; }
+
+/* An author `display` beats the browser's own rule for [hidden], and several
+   things here set one. Without this, hiding an element does nothing. */
+[hidden] { display: none !important; }
+
+html, body {
+  height: 100%;
+  margin: 0;
+  overflow: hidden;              /* never scroll the document */
+  overscroll-behavior: none;
+  background: #fff;
+  font-family: var(--font);
+  color: var(--navy-ink);
+  -webkit-text-size-adjust: 100%;
+}
+
+.hls {
+  position: absolute;
+  inset: 0;
+  /* `clip`, not `hidden`. A hidden box is still a scroll container, and the
+     browser scrolls one to reveal a focused child -- tapping a marker, which
+     sits far out in the transformed map, drags the whole chrome sideways and
+     takes the card and the header with it. `clip` cannot be scrolled at all.
+     `hidden` stays as the fallback, with a guard in app.js behind it. */
+  overflow: hidden;
+  overflow: clip;
+  background: #fff;
+}
+
+/* ---------- map stage ---------- */
+.stage {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  overflow: clip;
+  cursor: grab;
+  touch-action: none;
+  /* One white ground, continuous with the artwork. The map used to be a
+     white panel on a dark stage, which read as a rectangle floating on
+     navy rather than as a map. */
+  background: #fff;
+}
+.stage.dragging { cursor: grabbing; }
+
+/* This page is embedded: GoDaddy wraps it in an iframe, and the preview host
+   wraps it in a shell that injects its own base styles. One of those is
+   `img { max-width: 100% }`, which clamps the artwork to the container width
+   while the vector overlay above it keeps its full size -- the labels and
+   bulbs then float off the map entirely. Nothing in the map layers may be
+   left to inherit a size from the host.
+
+   Scoped to .canvas, not the whole page: the chrome above has images of its
+   own -- the participant logo on the detail card -- which do want to be held
+   to a sensible size. */
+.canvas img,
+.canvas svg {
+  max-width: none;
+  max-height: none;
+  min-width: 0;
+  min-height: 0;
+}
+
+.canvas {
+  position: absolute;
+  top: 0; left: 0;
+  width: 1584px;                 /* map space; the transform scales it */
+  height: 1224px;
+  transform-origin: 0 0;
+  /* No `will-change` here on purpose -- app.js sets it only while the view is
+     moving. Held permanently it pins the layer's rasterisation and the vector
+     artwork stays soft after a zoom. */
+  background: #fff;
+}
+
+.basemap {
+  display: block;
+  position: relative;            /* keeps it under the positioned layers above */
+  z-index: 1;
+  width: 1584px;                 /* map space; the canvas transform scales it */
+  height: 1224px;
+  max-width: none;               /* see the note on .canvas above */
+  user-select: none;
+  -webkit-user-drag: none;
+  pointer-events: none;
+}
+
+/* The map layers paint in this order. The z-indexes are not optional:
+   .basemap sits in normal flow, and a positioned element paints above an
+   unpositioned one whatever the source order, so without these the lettering
+   and the artwork can swap places. */
+
+/* Vector lettering, sitting exactly over the artwork it was stripped from. */
+.textlayer {
+  position: absolute;
+  top: 0; left: 0;
+  width: 1584px;
+  height: 1224px;
+  pointer-events: none;
+  overflow: visible;
+  z-index: 2;
+}
+.textlayer text {
+  font-family: var(--font);
+  white-space: pre;
+}
+
+/* ---------- the lit bulb ---------- */
+/* Picking a business lights its bulb, so it is obvious which of the sixty was
+   meant -- particularly from the list, where the bulb can be anywhere on the
+   map.
+
+   The bulb itself does not move and does not blink. What changes is the light
+   around it: a pool of its own colour fades up behind it, the way a lit bulb
+   spills onto paper. A pulsing or swelling bulb reads as a warning light and
+   is tiring to sit beside; this reads as switched on. */
+.bulbs .halo {
+  opacity: 0;
+  transition: opacity .4s ease;
+  pointer-events: none;
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+/* Hovering a bulb lights it exactly as picking it does -- the same breathing
+   pool of its own colour and the same lift on the glass. A fainter, stiller
+   version was tried first and did not read as anything at all. Only where
+   there is a real pointer: on a touch screen a hover sticks after the tap
+   and would leave bulbs lit behind you. */
+@media (hover: hover) {
+  .bulbs .bulb.is-warm .halo {
+    opacity: 1;
+    animation: halo-breathe .9s ease-in-out infinite;
+  }
+  .bulbs .bulb.is-warm {
+    filter: drop-shadow(0 0 2px var(--glow))
+            drop-shadow(0 0 5px var(--glow));
+  }
+  .bulbs .bulb.is-warm:not(.is-on) { cursor: pointer; }
+}
+
+/* Only the light moves. The bulb itself holds perfectly still -- a bulb that
+   swells or blinks reads as a warning light, where light breathing around a
+   still bulb reads as one that is lit. Brisk enough to catch the eye as soon
+   as a name is tapped, and still eased at both ends so it glows rather than
+   blinks -- this sits on screen for as long as the card is open. */
+.bulbs .bulb.is-on .halo {
+  opacity: 1;
+  animation: halo-breathe .9s ease-in-out infinite;
+}
+
+@keyframes halo-breathe {
+  0%, 100% { opacity: .62; transform: scale(.9); }
+  50%      { opacity: 1;   transform: scale(1.1); }
+}
+
+/* A little extra lift on the bulb itself, so the glass picks up the light
+   rather than sitting flat in the middle of it. */
+.bulbs .bulb.is-on {
+  filter: drop-shadow(0 0 2px var(--glow))
+          drop-shadow(0 0 5px var(--glow));
+}
+
+/* The number drawn as a bulb, in the list and on the card. Same artwork the
+   map uses, so the thing you pick in the panel is the thing you are hunting
+   for on the map. */
+.chip-bulb {
+  display: block;
+  height: 100%;
+  width: auto;
+  overflow: visible;
+}
+.chip-num {
+  font-family: var(--font);
+  font-size: 250px;            /* in the bulb's own 439x624 space */
+  fill: var(--navy-ink);
+}
+
+/* The spots still for sale, called out on the map itself. Flashing, because
+   the point of them is to be noticed -- but on a gentle cycle: it sits on
+   screen the whole time the map is open. */
+.free-tag {
+  fill: var(--navy);
+  font-weight: 700;
+  letter-spacing: .04em;
+  animation: free-flash 1.4s ease-in-out infinite;
+}
+@keyframes free-flash {
+  0%, 100% { opacity: .25; }
+  50%      { opacity: 1; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .free-tag { animation: none; opacity: 1; }
+}
+
+.markers { position: absolute; inset: 0; }
+
+/* ---------- spot markers ---------- */
+/* The tap target over each bulb. app.js sizes and centres it on the bulb it
+   belongs to, in canvas px, so it scales with the map (with a floor of a
+   fingertip when zoomed out). The ring is drawn in screen px: the canvas
+   scale is `--s`, set by app.js on every frame, and dividing by it keeps the
+   hairline a hairline however far in you are. */
+.mk {
+  position: absolute;
+  border: 0;
+  padding: 0;
+  border-radius: 50%;
+  background: transparent;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+.mk::after {
+  content: "";
+  position: absolute;
+  inset: calc(3px / var(--s, 1));
+  border-radius: 50%;
+  border: calc(2.5px / var(--s, 1)) solid transparent;
+  transition: border-color .15s, background-color .15s, box-shadow .15s;
+}
+.mk:hover::after,
+.mk:focus-visible::after {
+  border-color: var(--gold);
+  background: rgba(243,192,91,.22);
+  box-shadow: 0 0 0 calc(4px / var(--s, 1)) rgba(243,192,91,.18);
+}
+.mk:focus { outline: none; }
+.mk.is-active::after {
+  border-color: var(--gold);
+  background: rgba(243,192,91,.34);
+  box-shadow: 0 0 0 calc(5px / var(--s, 1)) rgba(243,192,91,.25);
+}
+
+/* ---------- chrome ---------- */
+.bar {
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: var(--bar-h);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 0 12px;
+  background: linear-gradient(180deg, #fff 0%, rgba(255,255,255,.93) 62%, rgba(255,255,255,0) 100%);
+  pointer-events: none;
+  z-index: 5;
+}
+.bar > * { pointer-events: auto; }
+
+.brand { display: flex; flex-direction: column; line-height: 1.15; min-width: 0; }
+.brand-k {
+  font-size: 15px; font-weight: 700; letter-spacing: -.01em;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.brand-s { font-size: 11.5px; color: var(--muted); }
+
+.btn {
+  font: inherit;
+  color: #fff;
+  background: rgba(13,42,68,.88);
+  border: 1px solid rgba(255,255,255,.18);
+  border-radius: 999px;
+  padding: 8px 14px;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  cursor: pointer;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  transition: background-color .15s, border-color .15s;
+  -webkit-tap-highlight-color: transparent;
+}
+.btn:hover { background: rgba(13,42,68,.97); }
+.btn:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+.btn svg { width: 17px; height: 17px; flex: none; }
+
+.btn-sq {
+  width: 38px; height: 38px;
+  padding: 0;
+  border-radius: 10px;
+  justify-content: center;
+  font-size: 19px;
+  line-height: 1;
+}
+
+/* The bottom-right corner of the map: the sponsor credit, then the zoom
+   buttons to its right. Both belong to the map, so they stand clear of the
+   list rather than behind it. `--list-w` is how much of the stage the open
+   list covers, set by app.js whenever that changes; it is 0 when the list is
+   shut, and 0 on a phone, where the list covers the map entirely and there is
+   no strip of map left to put them on. */
+.corner {
+  position: absolute;
+  right: calc(var(--list-w, 0px) + 16px);
+  bottom: 16px;
+  z-index: 6;
+  display: flex;
+  flex-direction: row;
+  align-items: flex-end;       /* the credit sits on the buttons' bottom line */
+  gap: 12px;
+  pointer-events: none;
+}
+.corner > * { pointer-events: auto; }
+
+/* The sponsor credit, laid out as Ketaki's own lock-up: two lines of plain
+   text, the wordmark, then DESIGN STUDIO in bold, spaced out to the
+   wordmark's width. No card behind it. Its height is what sets its size:
+   the four pieces are spread over it, and the wordmark's width is chosen so
+   the proportions match the lock-up. It stood exactly as tall as the column
+   of zoom buttons beside it (134px, top of + to bottom of fit) until 28 Oct
+   2026, when Ketaki asked for it 25% smaller: so 100px, bottom-aligned with
+   the fit button, and every size below is three quarters of what it was. */
+.credit {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  height: 100px;
+  padding: 0;
+  color: var(--navy-ink);
+  text-decoration: none;
+  text-align: center;
+  font-family: var(--font);
+  line-height: 1.15;
+  -webkit-tap-highlight-color: transparent;
+}
+.credit-l1,
+.credit-l2 { font-size: 11px; letter-spacing: 0; }
+.credit-l3 { font-size: 16px; font-weight: 700; letter-spacing: .14em; line-height: 1;
+             text-transform: uppercase; }
+.credit-mark { display: block; width: 159px; height: auto; margin: 0; }
+.credit:hover .credit-l3 { text-decoration: underline; text-underline-offset: 4px; }
+.credit:focus-visible { outline: 2px solid var(--gold); outline-offset: 4px; }
+
+.zoom {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 7px;
+}
+.zoom .btn { box-shadow: 0 2px 10px rgba(8,32,47,.22); }
+
+/* ---------- build stamp ---------- */
+/* Bottom left, the one corner nothing else uses. Quiet enough to ignore while
+   you read the map, legible enough to check before you report a bug against
+   the wrong version. */
+.build {
+  position: absolute;
+  left: 14px;
+  bottom: 14px;
+  z-index: 6;
+  margin: 0;
+  font-size: 10.5px;
+  letter-spacing: .05em;
+  color: var(--muted);
+  opacity: .75;
+  pointer-events: none;
+  user-select: none;
+}
+
+/* ---------- list panel ---------- */
+/* White, like the map it sits over, rather than a dark drawer dropped on
+   top of it. The shadow and the hairline are what separate it now. */
+.panel {
+  position: absolute;
+  top: 0; right: 0; bottom: 0;
+  width: min(330px, 86%);
+  display: flex;
+  flex-direction: column;
+  background: #fff;
+  color: var(--navy-ink);
+  border-left: 1px solid var(--edge);
+  box-shadow: -14px 0 34px rgba(8,32,47,.16);
+  transform: translateX(101%);
+  transition: transform .26s cubic-bezier(.4,0,.2,1);
+  z-index: 10;
+}
+.panel.open { transform: none; }
+
+/* The show's own logo, centred. Pinned: it and the credit at the foot stay
+   put while the list between them scrolls. The close button is taken out of
+   the flow and pinned to the corner, or the logo would centre itself against
+   the space left over beside it rather than against the panel. */
+.panel-top {
+  position: relative;
+  flex: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  padding: 12px 18px 8px;
+}
+.panel-logo {
+  display: block;
+  width: 172px;
+  height: auto;
+  /* The page this is embedded in sets `img { max-width: 100% }`, which is
+     harmless here but would shrink the logo if the panel ever narrowed
+     below it -- say so explicitly rather than inherit someone else's rule. */
+  max-width: 100%;
+}
+
+/* How many displays, under the logo. */
+.panel-count {
+  margin: 0;
+  font-size: 11.5px;
+  color: var(--muted);
+  text-align: center;
+}
+
+.panel-head {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px;
+}
+.search {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(8,32,47,.05);
+  border: 1px solid var(--edge);
+  border-radius: 9px;
+  padding: 0 10px;
+  min-width: 0;
+}
+.search svg { width: 16px; height: 16px; color: var(--muted); flex: none; }
+.search input {
+  flex: 1;
+  min-width: 0;
+  background: none;
+  border: 0;
+  color: var(--navy-ink);
+  font: inherit;
+  font-size: 14px;
+  padding: 10px 0;
+  outline: none;
+}
+.search input::placeholder { color: var(--muted); }
+.search input::-webkit-search-cancel-button { opacity: .5; }
+
+.list {
+  list-style: none;
+  margin: 0;
+  padding: 6px 0 10px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+  /* `min-height: 0` so this is the part that shrinks. A flex item will not go
+     below its content height without it, and the foot gets pushed out. */
+  flex: 1;
+  min-height: 0;
+}
+.list li { margin: 0; }
+.list button {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  padding: 9px 14px;
+  background: none;
+  border: 0;
+  color: var(--navy-ink);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+/* The hover is the business's own bulb colour, set per row in app.js, so the
+   list and the map agree before anything is clicked. The neutral is the
+   fallback for a row whose bulb carries no colour. */
+.list button:hover,
+.list button:focus-visible {
+  background: var(--row-hover, rgba(255,255,255,.08));
+  outline: none;
+}
+/* The bulb already carries the colour, so the hover only has to light it. */
+.list button:hover .chip-bulb,
+.list button:focus-visible .chip-bulb {
+  filter: drop-shadow(0 0 3px var(--row-chip, rgba(255,255,255,.5)));
+}
+/* Holds one bulb per display, so the eight participants with two spots get
+   two side by side. A flex row rather than a centred grid: with two bulbs in
+   it, a grid stacks them. */
+.list .n {
+  flex: none;
+  height: 34px;
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  color: var(--muted);
+  font-size: 12.5px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+.list .nm { font-size: 13.5px; line-height: 1.3; }
+/* A spot nobody has taken yet. Said quietly -- it is an offer in a list of
+   businesses, not an error. */
+.list .nm-free { color: var(--muted); font-style: italic; }
+.list .empty { padding: 20px 16px; color: var(--muted); font-size: 13.5px; }
+
+
+/* ---------- detail card ---------- */
+/* Docked at the foot of the list, not floating over the map. `flex: none` so
+   it keeps its height and the list above it gives way instead; capped at half
+   the panel so a tall card cannot squeeze the names out altogether. */
+.card {
+  position: relative;
+  flex: none;
+  max-height: 52%;
+  overflow: auto;
+  overscroll-behavior: contain;
+  padding: 0 14px 14px;
+  /* The card's ink, named in one place so the heading, the sub, the link
+     buttons and the nav all stay in step. */
+  --ink: var(--navy-ink);
+  --ink-soft: #51707f;
+  --ink-chip: rgba(13,42,68,.08);
+  --ink-edge: rgba(13,42,68,.16);
+  background: #fff;
+  color: var(--ink);
+  border-top: 1px solid var(--edge);
+  /* The shadow reaches up over the list, so the card reads as sitting in
+     front of the names rather than as another row of them. */
+  box-shadow: 0 -10px 22px rgba(8,32,47,.09);
+  z-index: 2;
+  animation: pop .18s ease-out;
+}
+@keyframes pop { from { opacity: 0; transform: translateY(8px); } }
+.card[hidden] { display: none; }
+/* Without a logo a card is barely taller than its buttons, and stepping
+   through the list made the panel jump. A floor steadies it. */
+.card.no-logo { min-height: 196px; }
+
+/* The spots still for sale. A full-width button, the one thing on the card
+   worth pressing. */
+.card-book {
+  display: block;
+  margin: 14px 0 0;
+  padding: 11px 14px;
+  border-radius: 10px;
+  background: var(--navy);
+  color: #fff;
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: .01em;
+  text-align: center;
+  text-decoration: none;
+  transition: background-color .15s;
+}
+.card-book:hover { background: var(--navy-2); }
+.card-book:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+
+
+/* The bulbs stand at the very top edge of the card, with the name beside
+   them. No top padding on the card, so they meet the edge rather than
+   floating below it. */
+.card-main {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  margin-right: 34px;            /* clears the close button */
+  min-height: 76px;
+}
+
+/* One bulb per display, side by side, and big: they are the spot number on
+   this card -- there is no line of wording repeating it. */
+.card-n {
+  flex: none;
+  align-self: flex-start;
+  display: flex;
+  align-items: flex-start;
+  gap: 7px;
+  height: 76px;
+  color: var(--navy-ink);
+  font-size: 17px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.card-body { min-width: 0; }     /* so a long name wraps instead of pushing */
+/* The participant's own logo, across the full width of the card. `contain`
+   rather than a stretch: these arrive as tall circles, wide wordmarks and the
+   odd photograph, and anything that crops or distorts them looks careless
+   with someone else's brand. A wide wordmark fills the width; a tall round
+   one fills the height of the box and centres in it. */
+.card-logo {
+  display: block;
+  margin: 12px 0 0;
+  width: 100%;
+  height: auto;
+  max-height: 150px;
+  object-fit: contain;
+}
+
+/* Website, Facebook, Instagram. Icons rather than addresses: most of these
+   are facebook.com/profile.php?id=615535759369, which tells a reader nothing
+   and wraps over three lines. */
+.card-links {
+  display: flex;
+  justify-content: center;
+  gap: 9px;
+  margin-top: 12px;
+}
+.card-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px; height: 40px;
+  border-radius: 11px;
+  color: var(--ink);
+  background: var(--ink-chip);
+  border: 1px solid var(--ink-edge);
+  transition: background-color .15s, color .15s;
+  -webkit-tap-highlight-color: transparent;
+}
+.card-link svg { width: 21px; height: 21px; }
+.card-link:hover { background: var(--ink); color: #fff; }
+.card-link:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+
+.card-name {
+  margin: 0;
+  font-size: 17.5px;
+  line-height: 1.25;
+  letter-spacing: -.01em;
+  color: var(--ink);
+}
+.card-nav { display: flex; gap: 9px; margin-top: 15px; }
+/* Previous and Next name where they go -- "Spot 2" over "RISE LTD." -- so
+   you know what you are stepping to before you tap. Two lines, left-aligned
+   on Previous and right-aligned on Next, the name held to one line. */
+.btn-ghost {
+  flex: 1;
+  min-width: 0;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  font-size: 13px;
+  padding: 8px 12px 9px;
+  border-radius: 10px;
+  text-align: left;
+  color: var(--ink);
+  background: var(--ink-chip);
+  border-color: var(--ink-edge);
+  backdrop-filter: none;
+}
+#next { align-items: flex-end; text-align: right; }
+.btn-ghost:hover { background: var(--ink-edge); }
+.nav-k { font-size: 11px; color: var(--ink-soft); white-space: nowrap; }
+.nav-n {
+  display: block;
+  max-width: 100%;
+  font-weight: 700;
+  line-height: 1.2;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+/* Phone-only pieces, hidden until the phone rules below turn them on. */
+.card-handle, .credit-foot, .tabs { display: none; }
+/* Just the glyph -- no plate behind it. It sits on the card's own colour. */
+.card-x {
+  position: absolute;
+  top: 7px; right: 8px;
+  width: 30px; height: 30px;
+  font-size: 21px;
+  line-height: 1;
+  color: var(--ink);
+  background: none;
+  border: 0;
+  opacity: .62;
+  backdrop-filter: none;
+  transition: opacity .15s;
+}
+.card-x:hover { background: none; opacity: 1; }
+.card-x:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+
+/* The card lives in the panel now, so it needs no room made for it out on
+   the map. */
+@media (max-width: 460px) {
+  .brand-s { display: none; }
+}
+
+/* short embeds: tighten the top bar */
+@media (max-height: 460px) {
+  :root { --bar-h: 46px; }
+  .brand-s { display: none; }
+  /* The list is what the panel is for. On a short screen the logo and the
+     credit give up their height to it rather than squeezing it out. */
+  .panel-logo { width: 112px; }
+  .panel-top { padding-top: 8px; padding-bottom: 5px; }
+}
+
+/* ---------- on a phone ---------- */
+/* Below 660px the list no longer fits beside the map (that is where
+   remeasureList() stops crediting it a width), so the page changes shape:
+
+     - a bar across the foot with two buttons, MAP and DISPLAYS
+     - the list fills the screen above the bar when DISPLAYS is tapped, with
+       the show logo on top, search, the names, and the sponsor credit small at
+       its foot; MAP puts it away
+     - the card is a sheet rising from the bar, over the map, with the map
+       still showing above it; app.js moves the card out of the list for this
+       and back again on a wide screen
+     - picking a name or a bulb lights the bulb and brings it into the window
+       above the sheet
+
+   The map is framed in the room above the bar, so the opening view and the
+   zoom floor work off that height. `--sheet-h` is the open card's height,
+   published by app.js, so the zoom buttons ride up over it. */
+@media (max-width: 660px) {
+  .stage { bottom: var(--tab-h); }
+
+  .tabs {
+    position: absolute;
+    left: 0; right: 0; bottom: 0;
+    height: var(--tab-h);
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    background: #fff;
+    border-top: 1px solid #e3e8ec;
+    box-shadow: 0 -4px 16px rgba(8,32,47,.12);
+    z-index: 12;
+  }
+  .tab {
+    font: inherit;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    color: var(--navy);
+    background: #fff;
+    border: 0;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .tab.is-active { background: var(--navy); color: #fff; }
+  .tab:focus-visible { outline: 2px solid var(--gold); outline-offset: -3px; }
+  .tab > svg { width: 16px; height: 16px; }
+  .tab-bulb { display: block; width: 13px; height: 18px; }
+  .tab-bulb svg { display: block; width: 100%; height: 100%; }
+
+  /* The list: the whole screen above the bar, in from the right. */
+  .panel {
+    left: 0; right: 0;
+    bottom: var(--tab-h);
+    width: auto;
+    border-left: 0;
+    box-shadow: none;
+  }
+  .panel-top { padding-top: 14px; }
+  .panel-logo { width: 124px; }
+  .panel-head { padding: 8px 12px; }
+  .list button { min-height: 58px; padding: 0 16px; gap: 12px; }
+  /* The bulbs hang from the top of the row by their caps, as they hang from
+     the wire on the map. */
+  .list .n { height: 46px; align-self: flex-start; }
+  .list .nm { font-size: 14px; }
+
+  /* The credit, small, at the foot of the list; the one in the corner of the
+     map is put away, since that corner is where the bar is. */
+  .corner .credit { display: none; }
+  .credit-foot {
+    display: flex;
+    flex: none;
+    height: auto;
+    gap: 2px;
+    padding: 9px 18px 10px;
+    border-top: 1px solid var(--edge);
+  }
+  .credit-foot .credit-l1,
+  .credit-foot .credit-l2 { font-size: 8.5px; }
+  .credit-foot .credit-mark { width: 97px; margin-top: 3px; }
+  .credit-foot .credit-l3 { font-size: 8.5px; margin-top: 1px; letter-spacing: .24em; }
+
+  .corner {
+    right: 12px;
+    bottom: calc(var(--tab-h) + 16px + var(--sheet-h, 0px));
+    transition: bottom .3s ease;
+  }
+  .build { bottom: calc(var(--tab-h) + 10px); }
+
+  /* The card as a sheet: square-cornered, sitting on the bar, the map still
+     showing above it. app.js has moved it out of the list to be a child of
+     .hls, which is what `.hls > .card` means. */
+  .hls > .card {
+    position: absolute;
+    left: 0; right: 0;
+    bottom: var(--tab-h);
+    z-index: 9;
+    max-height: 62%;
+    padding: 0 16px 16px;
+    border-top: 0;
+    box-shadow: 0 -6px 30px rgba(8,32,47,.22);
+    animation: rise .25s ease-out;
+  }
+  @keyframes rise { from { transform: translateY(100%); } }
+  /* Pulled down by the handle: just the handle and the name. */
+  .hls > .card.peek {
+    height: 100px;
+    min-height: 0;
+    overflow: hidden;
+  }
+  .card-handle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 26px;
+    border: 0;
+    padding: 0;
+    background: none;
+    cursor: grab;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .card-handle span { display: block; width: 40px; height: 5px; border-radius: 3px; background: #cfd6dc; }
+  .hls > .card .card-x { top: 30px; right: 10px; }
+  /* A fixed box for the logo, so the sheet is its full height the moment it
+     opens rather than growing when the picture arrives -- the map is framed
+     in the room above it, and that room must be known at once. */
+  .hls > .card .card-logo { height: 150px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * { animation-duration: .01ms !important; transition-duration: .01ms !important; }
+  /* Killing the animation would leave no sign of which bulb was picked, so
+     the lit one keeps a steady glow instead of a pulsing one. */
+  /* The light holds steady rather than breathing, and appears rather than
+     fading -- but it still has to be there, or there is no sign at all of
+     which bulb was picked. */
+  .bulbs .halo { transition: none; }
+  .bulbs .bulb.is-on .halo,
+  .bulbs .bulb.is-warm .halo { opacity: 1; transform: scale(1.05); animation: none; }
+}
