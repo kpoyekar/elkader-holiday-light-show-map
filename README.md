@@ -501,11 +501,16 @@ The page fills whatever height it is given and never grows the document. That
 matters because it is embedded in a fixed-height iframe on the GoDaddy site,
 which clips anything taller than the height set there.
 
-**The map opens at 80% of the height, on every screen, and cannot be zoomed
+**The map opens at 80% of the height on a wide screen, and cannot be zoomed
 out past it.** `minScale()` is `stage.clientHeight / cropPx().h * OPEN`, with
 `OPEN = 0.8`, and it is both the opening view and the floor `setScale()` clamps
 to — so the height is still the one thing that never changes, whatever screen
 the page is on: the map is always the same fraction of its box.
+
+**On a phone it fills the height** (`OPEN_PHONE = 1`): top edge under the
+title, bottom edge on the MAP / DISPLAYS bar, no white above or below. The 80%
+was asked for where the map sits in a box on a page; on a phone the screen is
+the box, and Ketaki asked on 28 Oct 2026 for the map to meet its edges.
 
 It filled the height exactly until 28 Oct 2026, when Ketaki asked for the map
 20% smaller. The fifth that frees up shows as white above and below the map;

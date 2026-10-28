@@ -261,8 +261,16 @@
      business names unreadable, and reading them is the thing this page is
      for. */
   var OPEN = 0.8;
+
+  /* On a phone the map fills the height instead: top edge under the title,
+     bottom edge on the MAP / DISPLAYS bar, no white above or below. The 80%
+     was asked for on the wide screen, where the map sits in a box on a page;
+     on a phone the whole screen is the box, and Ketaki asked on 28 Oct 2026
+     for the map to meet its edges. */
+  var OPEN_PHONE = 1;
+
   function minScale() {
-    return stage.clientHeight / cropPx().h * OPEN;
+    return stage.clientHeight / cropPx().h * (isPhone() ? OPEN_PHONE : OPEN);
   }
 
   function home() {
