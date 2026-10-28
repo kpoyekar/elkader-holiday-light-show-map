@@ -1003,6 +1003,8 @@
 
     document.getElementById('cardN').textContent = '';
     document.getElementById('cardName').textContent = 'Special events at Floral Hall';
+    var sub = document.getElementById('cardSub');
+    if (sub) { sub.textContent = 'Hot chocolate every Saturday, 5pm\u20137pm'; sub.hidden = false; }
     text.textContent = '';
     text.appendChild(tpl.content.cloneNode(true));
     text.hidden = false;
@@ -1031,6 +1033,8 @@
     card.classList.remove('card-info');
     var text = document.getElementById('cardText');
     if (text) { text.textContent = ''; text.hidden = true; }
+    var sub = document.getElementById('cardSub');
+    if (sub) { sub.textContent = ''; sub.hidden = true; }
     if (hallEl) hallEl.classList.remove('is-active');
   }
 

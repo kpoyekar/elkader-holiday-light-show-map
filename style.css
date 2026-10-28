@@ -716,25 +716,73 @@ html, body {
 .card-x:hover { background: none; opacity: 1; }
 .card-x:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
 
-/* The Floral Hall card: the special events as a page of text rather than a
+/* The Floral Hall card: the special events as a schedule rather than a
    display. No bulbs, since it is not a spot; no Previous / Next, since it is
-   not on the route. The text scrolls inside the card where it has to. */
+   not on the route. It takes a wash of the hall's own blue and a blue top
+   edge, so it stands apart from the white list and the white display cards
+   and ties back to the building you tapped. Taller than a display card on a
+   wide screen, since it is a page of dates; it scrolls past that. */
+.card-info {
+  background: #eef6fb;
+  border-top: 3px solid #84b6db;
+  max-height: 72%;
+}
 .card-info .card-n,
 .card-info .card-nav { display: none; }
 .card-info .card-main { min-height: 0; padding-top: 14px; }
+.card-info .card-name { font-size: 19px; }
 .card-info.no-logo { min-height: 0; }
+.card-sub { display: block; margin-top: 3px; font-size: 12.5px; color: var(--ink-soft); }
 .card-text {
-  margin-top: 8px;
+  margin-top: 10px;
   font-size: 13.5px;
   line-height: 1.45;
   color: var(--ink);
 }
-.card-text p { margin: 0 0 10px; }
-.card-text ul { margin: 0 0 10px; padding-left: 18px; }
-.card-text li { margin: 0 0 7px; }
 .card-text b { font-weight: 700; }
 .card-text a { color: var(--ink); text-decoration: underline; text-underline-offset: 3px; }
 .card-text a:hover { color: var(--navy-2); }
+.ev-lead { margin: 0 0 10px; }
+/* One row per night: the date small and spaced in navy, what happens under
+   it, who hosts it in the quieter ink. A blue dot marks each, hairlines
+   between them. */
+.ev-list { list-style: none; margin: 4px 0 12px; padding: 0; }
+.ev-list li { position: relative; padding: 9px 0 9px 15px; border-top: 1px solid rgba(13,42,68,.12); }
+.ev-list li::before {
+  content: "";
+  position: absolute;
+  left: 0; top: 15px;
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  background: #84b6db;
+  box-shadow: 0 0 0 2px rgba(132,182,219,.35);
+}
+.ev-date {
+  display: block;
+  margin-bottom: 2px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--navy);
+}
+.ev-what { display: block; }
+.ev-host { display: block; margin-top: 3px; font-size: 12px; color: var(--ink-soft); }
+/* The Facebook page, as the one thing on the card worth pressing. */
+.card-text .ev-fb {
+  display: block;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: var(--navy);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 700;
+  text-align: center;
+  text-decoration: none;
+  transition: background-color .15s;
+}
+.card-text .ev-fb:hover { background: var(--navy-2); color: #fff; }
+.card-text .ev-fb:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
 
 /* short embeds */
 @media (max-height: 460px) {
@@ -874,6 +922,7 @@ html, body {
   }
   .card-handle span { display: block; width: 40px; height: 5px; border-radius: 3px; background: #cfd6dc; }
   .hls > .card .card-x { top: 30px; right: 10px; }
+  .hls > .card.card-info { border-top: 3px solid #84b6db; }
   /* A fixed box for the logo, so the sheet is its full height the moment it
      opens rather than growing when the picture arrives -- the map is framed
      in the room above it, and that room must be known at once. */
