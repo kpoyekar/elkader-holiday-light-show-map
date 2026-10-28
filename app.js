@@ -179,17 +179,37 @@
      denylist fails the harmless way instead -- a stamp somewhere it was not
      wanted, which is visible and takes a second to fix.
 
-     Add the live domain here when the map goes on the GoDaddy site. */
+     The GoDaddy site frames the map from GitHub Pages rather than hosting
+     it, so the live case is caught below by the framing instead; this list
+     is for a day the map is served from the City's own domain. */
   var LIVE_HOSTS = [];
 
-  (function revealBuildStamp() {
-    var el = document.getElementById('build');
-    if (!el) return;
+  /* Hosts a preview is known to be framed by: the claude.ai artifact view
+     and a local server. Framed by anything else -- the City's GoDaddy page,
+     which puts this map in an iframe -- the page is the live site whatever
+     host serves it, and the stamp stays hidden. */
+  var PREVIEW_FRAMERS = /(^|\.)claude\.ai$|(^|\.)claudeusercontent\.com$|^localhost$|^127\.0\.0\.1$/;
+
+  function isLivePage() {
     var h = (location.hostname || '').toLowerCase();
     for (var i = 0; i < LIVE_HOSTS.length; i++) {
       var live = LIVE_HOSTS[i];
-      if (h === live || h.slice(-(live.length + 1)) === '.' + live) return;
+      if (h === live || h.slice(-(live.length + 1)) === '.' + live) return true;
     }
+    if (window.self !== window.top) {
+      /* Framed. The framer's host comes through the referrer; none at all
+         (a referrer policy stripped it) is taken as live, since a stamp on
+         the City's page is the one outcome this must never produce. */
+      var by = '';
+      try { by = new URL(document.referrer).hostname.toLowerCase(); } catch (e) {}
+      if (!PREVIEW_FRAMERS.test(by)) return true;
+    }
+    return false;
+  }
+
+  (function revealBuildStamp() {
+    var el = document.getElementById('build');
+    if (!el || isLivePage()) return;
     el.hidden = false;
   })();
 

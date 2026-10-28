@@ -37,9 +37,28 @@ To put a new build up, from this folder:
 Pages rebuilds on its own in a minute or so. Run `stamp.py` first, so the
 stamp and the asset keys match what you are pushing.
 
+## On the GoDaddy site
+
+The City's page does not host the map; it frames it from GitHub Pages. In
+the GoDaddy editor, an HTML section carries this and nothing else:
+
+```html
+<iframe src="https://kpoyekar.github.io/elkader-holiday-light-show-map/"
+        title="Elkader Holiday Light Show — interactive map of the displays"
+        style="display:block; width:100%; height:80vh; min-height:600px; border:0"
+        loading="lazy" allow="fullscreen"></iframe>
+```
+
+The map fills whatever height the frame gives it (see *Fitting a fixed-height
+box*), so the height is set here, on the frame: four fifths of the screen,
+never under 600px. It sits above the "Reserve your spot today!" section,
+since 28 Oct 2026. Pushing to GitHub updates the embedded map on its own; the
+GoDaddy page itself never needs touching again for a new build.
+
 ## What to upload
 
-Everything in this folder. Nothing outside it is needed at runtime.
+Everything in this folder, if the map is ever served from the City's own
+hosting instead of GitHub Pages. Nothing outside it is needed at runtime.
 
 ```
 index.html      the page
@@ -948,9 +967,14 @@ before reporting anything else.
 assets actually contain. That is the part that stops the stale copy being
 served at all; the stamp is so a person can confirm it.
 
-**The stamp is for previews only and never shows on the live site.** `app.js`
-hides it on any host listed in `LIVE_HOSTS` — add the GoDaddy domain there
-when the map goes live. The GitHub Pages copy is a preview, so it shows the
+**The stamp is for previews only and never shows on the live site.** The
+live site is the GoDaddy page, which frames the map from GitHub Pages, so
+`isLivePage()` in `app.js` hides the stamp whenever the page is framed by
+anything but a known preview host (the claude.ai artifact view, a local
+server) — and when it is framed and the referrer has been stripped, which is
+taken as live, since a stamp on the City's page is the one outcome this must
+never produce. `LIVE_HOSTS` stays for a day the map is served from the
+City's own domain. Opened directly, the GitHub Pages link still shows the
 stamp on purpose: it says which build a client was looking at.
 
 That list is a denylist rather than a list of preview hosts, deliberately. An
