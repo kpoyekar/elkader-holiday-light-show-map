@@ -6,7 +6,7 @@
 <title>Elkader Holiday Light Show — Map</title>
 <meta name="description" content="Interactive map of the Elkader Holiday Light Show drive-through at the City Park and Campground. Find all 60 displays and who sponsored them.">
 <meta name="theme-color" content="#0d2a44">
-<link rel="stylesheet" href="style.css?v=b030ac9b">
+<link rel="stylesheet" href="style.css?v=dc5bc075">
 </head>
 <body>
 
@@ -18,7 +18,7 @@
       <!-- The artwork, vector all the way through: every shape traced out of
            the Canva export, so nothing here is a picture of a map. It carries
            no lettering -- that is drawn over it, below. -->
-      <img class="basemap" id="basemap" src="assets/map.svg?v=b030ac9b"
+      <img class="basemap" id="basemap" src="assets/map.svg?v=dc5bc075"
            alt="Map of the Holiday Light Show route through the Elkader City Campground">
       <!-- Every label on the map is drawn here as vector text, so it stays
            sharp at any zoom. The artwork underneath carries no lettering. -->
@@ -37,7 +37,7 @@
        printed where it can be read off the screen. _build/stamp.py writes the
        text; app.js reveals it on preview hosts only, so it never reaches the
        live site. -->
-  <p class="build" id="build" hidden>v83 &middot; 28 Oct 2026</p>
+  <p class="build" id="build" hidden>v84 &middot; 28 Oct 2026</p>
 
   <!-- The sponsor credit and, to its right, the zoom buttons. The credit was
        printed on the map itself, inside the loop; it lives out here now so it
@@ -73,7 +73,7 @@
        carries it is off screen. -->
   <aside class="panel" id="panel" aria-label="All displays">
     <div class="panel-top">
-      <img class="panel-logo" src="assets/show-logo.webp?v=b030ac9b" width="393" height="391"
+      <img class="panel-logo" src="assets/show-logo.webp?v=dc5bc075" width="393" height="391"
            alt="Elkader Holiday Light Show">
       <!-- How many displays, and how many of them a search is showing. Under
            the logo rather than down in the footer, where it read as part of
@@ -102,6 +102,9 @@
         <span class="card-n" id="cardN"></span>
         <div class="card-body">
           <h2 class="card-name" id="cardName"></h2>
+          <!-- Only on the Floral Hall card: the special events, copied in
+               from the template at the foot of the page. -->
+          <div class="card-text" id="cardText" hidden></div>
         </div>
       </div>
       <!-- The logo gets a row of its own under them, where it has the whole
@@ -157,7 +160,25 @@
 
 </div>
 
-<script src="data.js?v=b030ac9b"></script>
-<script src="app.js?v=b030ac9b"></script>
+<!-- ===== Floral Hall: the special events =====
+     Tap the blue building on the map and this opens on the card. It is
+     ordinary HTML, kept here rather than in data.js (which the build
+     rewrites), so it can be edited by hand when the programme changes. -->
+<template id="eventsCard">
+  <p>Each Saturday from 5pm&ndash;7pm throughout the holiday season, we'll be serving hot chocolate in Floral Hall (the shelter house in the campground at the end of the route) thanks to our local community businesses and organizations volunteering their time.</p>
+  <p>A few of these Saturdays (and one special Thursday evening) will include fun, festive activities for you and your family to enjoy!</p>
+  <ul>
+    <li><b>Saturday, November 21st</b> &mdash; OPENING NIGHT! Christmas Ornament Making + Holiday Music by Dave Beck (Hosted by FreedomBank)</li>
+    <li><b>Saturday, November 28th</b> &mdash; Shop Small Saturday, visit downtown Elkader prior to going through the lights! There will be no added special event this evening due to the <a href="https://www.facebook.com/IAEACC" target="_blank" rel="noopener noreferrer">Elkader Area Chamber</a>'s events that day, but we WILL still be serving hot chocolate in Floral Hall from 5pm&ndash;7pm so stop by and warm up with us! (Hosted by Mobile Track Solutions)</li>
+    <li><b>Saturday, December 5th</b> &mdash; Cookie Decorating + Ugly Sweater Run (5pm start), cookies sponsored by Pedretti's Bakery. (Hosted by Alpine Communications)</li>
+    <li><b>Thursday, December 10th</b> &mdash; Central Madrigal Choir</li>
+    <li><b>Saturday, December 12th</b> &mdash; Visit Santa + Sleigh Rides</li>
+    <li><b>Saturday, December 19th</b> &mdash; Pajama Night w/ Glow Sticks + Holiday Movie Ticket (good for special Sunday holiday show on 12/20 at noon)</li>
+  </ul>
+  <p>Watch our <a href="https://www.facebook.com/elkaderholidaylights" target="_blank" rel="noopener noreferrer">Facebook page</a> for last-minute changes, weather updates + more!</p>
+</template>
+
+<script src="data.js?v=dc5bc075"></script>
+<script src="app.js?v=dc5bc075"></script>
 </body>
 </html>

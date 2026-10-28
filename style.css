@@ -284,6 +284,9 @@ html, body {
   background: rgba(243,192,91,.34);
   box-shadow: 0 0 0 calc(5px / var(--s, 1)) rgba(243,192,91,.25);
 }
+/* Floral Hall: the one building you can tap. The target is the building's
+   own box, so its ring is a rounded rectangle rather than a circle. */
+.mk-hall, .mk-hall::after { border-radius: calc(7px / var(--s, 1)); }
 
 /* ---------- chrome ---------- */
 /* No title bar: the section of the GoDaddy site this sits in carries the
@@ -712,6 +715,26 @@ html, body {
 }
 .card-x:hover { background: none; opacity: 1; }
 .card-x:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+
+/* The Floral Hall card: the special events as a page of text rather than a
+   display. No bulbs, since it is not a spot; no Previous / Next, since it is
+   not on the route. The text scrolls inside the card where it has to. */
+.card-info .card-n,
+.card-info .card-nav { display: none; }
+.card-info .card-main { min-height: 0; padding-top: 14px; }
+.card-info.no-logo { min-height: 0; }
+.card-text {
+  margin-top: 8px;
+  font-size: 13.5px;
+  line-height: 1.45;
+  color: var(--ink);
+}
+.card-text p { margin: 0 0 10px; }
+.card-text ul { margin: 0 0 10px; padding-left: 18px; }
+.card-text li { margin: 0 0 7px; }
+.card-text b { font-weight: 700; }
+.card-text a { color: var(--ink); text-decoration: underline; text-underline-offset: 3px; }
+.card-text a:hover { color: var(--navy-2); }
 
 /* short embeds */
 @media (max-height: 460px) {

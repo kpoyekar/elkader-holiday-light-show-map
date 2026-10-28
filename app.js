@@ -145,13 +145,15 @@
        its middle was landing taps on the neighbour. Zoomed out, where a bulb
        is smaller than a fingertip, the marker holds at MK_MIN instead. */
     var floor = MK_MIN / view.s;
-    for (var n in mkEls) {
-      var el = mkEls[n];
-      var w = Math.max(el._w || 0, floor), h = Math.max(el._h || 0, floor);
-      el.style.width = w + 'px';
-      el.style.height = h + 'px';
-      el.style.margin = (-h / 2) + 'px 0 0 ' + (-w / 2) + 'px';
-    }
+    for (var n in mkEls) sizeMarker(mkEls[n], floor);
+    if (hallEl) sizeMarker(hallEl, floor);
+  }
+
+  function sizeMarker(el, floor) {
+    var w = Math.max(el._w || 0, floor), h = Math.max(el._h || 0, floor);
+    el.style.width = w + 'px';
+    el.style.height = h + 'px';
+    el.style.margin = (-h / 2) + 'px 0 0 ' + (-w / 2) + 'px';
   }
 
   /* The build stamp is for previews only.
@@ -711,6 +713,33 @@
     mkEls[i] = b;
   });
 
+  /* ---------- Floral Hall ---------- */
+
+  /* The one building you can tap: hot chocolate is served there every
+     Saturday, and the themed nights happen there, so the shelter house
+     carries the special events. Its box is the shape's extent in the
+     artwork, in page units -- the one under the FLORAL HALL label, which
+     optimise_svg.py keeps blue for the same reason. */
+  var FLORAL_HALL = { x: 222.6, y: 81.2, w: 64.3, h: 61.0 };
+  var hallEl = null;
+  (function hallMarker() {
+    var k = MAP_W / DATA.page.w;
+    var b = document.createElement('button');
+    b.className = 'mk mk-hall';
+    b.style.left = ((FLORAL_HALL.x + FLORAL_HALL.w / 2) * k) + 'px';
+    b.style.top  = ((FLORAL_HALL.y + FLORAL_HALL.h / 2) * k) + 'px';
+    b._w = FLORAL_HALL.w * k;
+    b._h = FLORAL_HALL.h * k;
+    b.setAttribute('aria-label', 'Floral Hall: the special events');
+    b.addEventListener('click', function (e) {
+      e.stopPropagation();
+      if (dragged) return;
+      openEvents();
+    });
+    markers.appendChild(b);
+    hallEl = b;
+  })();
+
   /* Takes a spot or a participant row -- both carry `nums`, and a row with
      two of them is the one that needs the plural. */
   function spotWord(x) {
@@ -865,6 +894,7 @@
       togglePanel(true, true);
     }
     if (active !== null && mkEls[active]) mkEls[active].classList.remove('is-active');
+    leaveEvents();
     active = i;
     mkEls[i].classList.add('is-active');
     var row = rowOf(i);
@@ -953,9 +983,61 @@
     select(ROWS[r].i, true);
   }
 
+  /* The Floral Hall card: the special events, in place of a display. The
+     same card, so it docks in the list on a wide screen and rises as the
+     sheet on a phone like any other; the text comes from the template in
+     index.html, where it can be edited by hand. */
+  function openEvents() {
+    var tpl = document.getElementById('eventsCard');
+    var text = document.getElementById('cardText');
+    if (!tpl || !text) return;
+    if (isPhone()) {
+      if (panel.classList.contains('open')) togglePanel(false, true);
+    } else if (!panel.classList.contains('open')) {
+      togglePanel(true, true);
+    }
+    if (active !== null && mkEls[active]) mkEls[active].classList.remove('is-active');
+    lightBulb(null);
+    active = null;
+    if (hallEl) hallEl.classList.add('is-active');
+
+    document.getElementById('cardN').textContent = '';
+    document.getElementById('cardName').textContent = 'Special events at Floral Hall';
+    text.textContent = '';
+    text.appendChild(tpl.content.cloneNode(true));
+    text.hidden = false;
+    var logo = document.getElementById('cardLogo');
+    logo.removeAttribute('src'); logo.alt = ''; logo.hidden = true;
+    document.getElementById('cardLinks').hidden = true;
+    var book = document.getElementById('cardBook');
+    if (book) { book.removeAttribute('href'); book.textContent = ''; book.hidden = true; }
+    card.classList.add('card-info');
+    card.classList.remove('no-logo');
+    card.setAttribute('aria-label', 'Special events at Floral Hall');
+
+    card.classList.remove('peek');
+    card.hidden = false;
+    sheetInset();
+    /* On a phone the hall is brought up into the window above the sheet,
+       as a bulb is. On a wide screen the map stays where it is. */
+    if (isPhone()) {
+      focusSpot({ x: (FLORAL_HALL.x + FLORAL_HALL.w / 2) / DATA.page.w,
+                  y: (FLORAL_HALL.y + FLORAL_HALL.h / 2) / DATA.page.h });
+    }
+  }
+
+  function leaveEvents() {
+    if (!card.classList.contains('card-info')) return;
+    card.classList.remove('card-info');
+    var text = document.getElementById('cardText');
+    if (text) { text.textContent = ''; text.hidden = true; }
+    if (hallEl) hallEl.classList.remove('is-active');
+  }
+
   function closeCard() {
     card.hidden = true;
     card.classList.remove('peek');
+    leaveEvents();
     if (active !== null && mkEls[active]) mkEls[active].classList.remove('is-active');
     lightBulb(null);
     active = null;

@@ -778,6 +778,27 @@ The card's ink is named in one place (`--ink`, `--ink-soft`, `--ink-chip`,
 `--ink-edge`) so the heading, the sub line, the link buttons and the nav stay
 in step.
 
+## Floral Hall and the special events
+
+Floral Hall is the one building on the map you can tap. It is blue, the
+colour every building used to be, so it reads as the one that does something;
+tap it and the card opens with the special events — hot chocolate every
+Saturday 5–7pm, and the themed nights — in place of a display. No bulbs on
+that card and no Previous / Next, since it is not a spot on the route. On a
+phone it rises as the sheet like any other card, and the hall is brought up
+into view above it.
+
+**The text lives in `index.html`**, in the `<template id="eventsCard">` at
+the foot of the page, as ordinary HTML. When the programme changes, edit it
+there; it is deliberately not in `data.js`, which the build rewrites. Dates
+are listed in the order they fall.
+
+The blue is put on by `blue_floral_hall()` in `optimise_svg.py`, which finds
+the building by its box in page units (`FLORAL_HALL_BOX`, the shape under the
+FLORAL HALL label) and stops the build if nothing is there. The tap target is
+the same box, `FLORAL_HALL` in `app.js`, sized like the bulb markers so it
+grows with the map. If the artwork ever moves, both boxes move with it.
+
 ## Links on the card
 
 Website, Facebook and Instagram, read off the participants spreadsheet by
