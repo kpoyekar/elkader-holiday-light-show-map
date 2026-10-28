@@ -245,6 +245,7 @@ html, body {
 }
 @media (prefers-reduced-motion: reduce) {
   .free-tag { animation: none; opacity: 1; }
+  .mk-hall::after { animation: none; opacity: 1; }
 }
 
 .markers { position: absolute; inset: 0; }
@@ -285,8 +286,24 @@ html, body {
   box-shadow: 0 0 0 calc(5px / var(--s, 1)) rgba(243,192,91,.25);
 }
 /* Floral Hall: the one building you can tap. The target is the building's
-   own box, so its ring is a rounded rectangle rather than a circle. */
+   own box, so its ring is a rounded rectangle rather than a circle -- and
+   it is lit all the time, a gold glow that breathes, so nobody has to guess
+   that the blue building does something. Steady while its page is open. */
 .mk-hall, .mk-hall::after { border-radius: calc(7px / var(--s, 1)); }
+.mk-hall::after {
+  border-color: var(--gold);
+  background: rgba(243,192,91,.16);
+  box-shadow: 0 0 0 calc(4px / var(--s, 1)) rgba(243,192,91,.45),
+              0 0 calc(18px / var(--s, 1)) calc(6px / var(--s, 1)) rgba(243,192,91,.75);
+  animation: hall-glow 1.4s ease-in-out infinite;
+}
+.mk-hall:hover::after,
+.mk-hall:focus-visible::after,
+.mk-hall.is-active::after { animation: none; opacity: 1; background: rgba(243,192,91,.3); }
+@keyframes hall-glow {
+  0%, 100% { opacity: .45; }
+  50%      { opacity: 1; }
+}
 
 /* ---------- chrome ---------- */
 /* No title bar: the section of the GoDaddy site this sits in carries the
@@ -716,61 +733,110 @@ html, body {
 .card-x:hover { background: none; opacity: 1; }
 .card-x:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
 
-/* The Floral Hall card: the special events as a schedule rather than a
-   display. No bulbs, since it is not a spot; no Previous / Next, since it is
-   not on the route. It takes a wash of the hall's own blue and a blue top
-   edge, so it stands apart from the white list and the white display cards
-   and ties back to the building you tapped. Taller than a display card on a
-   wide screen, since it is a page of dates; it scrolls past that. */
-.card-info {
+/* ---------- Floral Hall: the events page ---------- */
+/* Tap the hall and this takes the panel over from under the show logo to
+   the foot: the search, the names and the card step aside behind it until
+   the x. A wash of the hall's own blue with a blue top edge, so it reads as
+   the building you tapped rather than as another card. One row per night:
+   a calendar tile -- month, day, weekday -- beside what happens and who
+   hosts. The rows scroll; the head and the Facebook button stay put. */
+.events {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
   background: #eef6fb;
   border-top: 3px solid #84b6db;
-  max-height: 72%;
-}
-.card-info .card-n,
-.card-info .card-nav { display: none; }
-.card-info .card-main { min-height: 0; padding-top: 14px; }
-.card-info .card-name { font-size: 19px; }
-.card-info.no-logo { min-height: 0; }
-.card-sub { display: block; margin-top: 3px; font-size: 12.5px; color: var(--ink-soft); }
-.card-text {
-  margin-top: 10px;
-  font-size: 13.5px;
-  line-height: 1.45;
+  --ink: var(--navy-ink);
+  --ink-soft: #51707f;
   color: var(--ink);
+  animation: pop .18s ease-out;
 }
-.card-text b { font-weight: 700; }
-.card-text a { color: var(--ink); text-decoration: underline; text-underline-offset: 3px; }
-.card-text a:hover { color: var(--navy-2); }
-.ev-lead { margin: 0 0 10px; }
-/* One row per night: the date small and spaced in navy, what happens under
-   it, who hosts it in the quieter ink. A blue dot marks each, hairlines
-   between them. */
-.ev-list { list-style: none; margin: 4px 0 12px; padding: 0; }
-.ev-list li { position: relative; padding: 9px 0 9px 15px; border-top: 1px solid rgba(13,42,68,.12); }
-.ev-list li::before {
-  content: "";
+.panel.events-open .panel-head,
+.panel.events-open .list,
+.panel.events-open .card { display: none !important; }
+.events-head {
+  position: relative;
+  flex: none;
+  padding: 14px 48px 12px 16px;
+}
+.events-title {
+  margin: 0;
+  font-size: 17.5px;
+  line-height: 1.25;
+  letter-spacing: -.01em;
+}
+.events-sub { margin: 3px 0 0; font-size: 12.5px; color: var(--ink-soft); }
+.events-x {
   position: absolute;
-  left: 0; top: 15px;
-  width: 7px; height: 7px;
-  border-radius: 50%;
-  background: #84b6db;
-  box-shadow: 0 0 0 2px rgba(132,182,219,.35);
+  top: 9px; right: 8px;
+  width: 30px; height: 30px;
+  font-size: 21px;
+  line-height: 1;
+  color: var(--ink);
+  background: none;
+  border: 0;
+  opacity: .62;
+  backdrop-filter: none;
+  transition: opacity .15s;
 }
-.ev-date {
+.events-x:hover { background: none; opacity: 1; }
+.events-x:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+.events-body {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+  padding: 0 16px 6px;
+  font-size: 13px;
+  line-height: 1.45;
+}
+.events-body a { color: var(--ink); text-decoration: underline; text-underline-offset: 3px; }
+.events-body a:hover { color: var(--navy-2); }
+.ev-lead { margin: 0 0 10px; }
+.ev-list { list-style: none; margin: 4px 0 0; padding: 0; }
+.ev-list li {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  padding: 10px 0;
+  border-top: 1px solid rgba(13,42,68,.12);
+}
+/* The tile: the month on a navy cap, the day large, the weekday under it. */
+.ev-tile {
+  flex: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 50px;
+  border: 1px solid rgba(13,42,68,.16);
+  border-radius: 8px;
+  overflow: hidden;
+  background: #fff;
+}
+.ev-month {
   display: block;
-  margin-bottom: 2px;
-  font-size: 11px;
+  width: 100%;
+  padding: 2px 0;
+  background: var(--navy);
+  color: #fff;
+  font-size: 10px;
   font-weight: 700;
-  letter-spacing: .1em;
-  text-transform: uppercase;
-  color: var(--navy);
+  letter-spacing: .12em;
+  text-align: center;
 }
-.ev-what { display: block; }
+.ev-day { padding-top: 3px; font-size: 20px; font-weight: 700; line-height: 1.1; color: var(--navy); }
+.ev-wd { padding-bottom: 4px; font-size: 10px; font-weight: 700; letter-spacing: .08em; color: var(--muted); }
+.ev-text { flex: 1; min-width: 0; }
+.ev-title { display: block; font-size: 13.5px; font-weight: 700; line-height: 1.25; color: var(--navy); }
+.ev-what { display: block; margin-top: 2px; }
 .ev-host { display: block; margin-top: 3px; font-size: 12px; color: var(--ink-soft); }
-/* The Facebook page, as the one thing on the card worth pressing. */
-.card-text .ev-fb {
+/* The Facebook page, pinned at the foot as the one thing worth pressing. */
+.events-fb {
+  flex: none;
   display: block;
+  margin: 8px 16px 14px;
   padding: 10px 12px;
   border-radius: 10px;
   background: var(--navy);
@@ -781,8 +847,9 @@ html, body {
   text-decoration: none;
   transition: background-color .15s;
 }
-.card-text .ev-fb:hover { background: var(--navy-2); color: #fff; }
-.card-text .ev-fb:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+.events-fb:hover { background: var(--navy-2); }
+.events-fb:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+.events-handle { display: none; }
 
 /* short embeds */
 @media (max-height: 460px) {
@@ -922,7 +989,35 @@ html, body {
   }
   .card-handle span { display: block; width: 40px; height: 5px; border-radius: 3px; background: #cfd6dc; }
   .hls > .card .card-x { top: 30px; right: 10px; }
-  .hls > .card.card-info { border-top: 3px solid #84b6db; }
+
+  /* The events page as a sheet: taller than a display card, since it is a
+     page of dates, with the handle pulling it down to the title. app.js has
+     moved it out of the list to be a child of .hls, like the card. */
+  .hls > .events {
+    position: absolute;
+    left: 0; right: 0;
+    bottom: var(--tab-h);
+    height: 72%;
+    z-index: 9;
+    box-shadow: 0 -6px 30px rgba(8,32,47,.22);
+    animation: rise .25s ease-out;
+  }
+  .hls > .events.peek { height: 100px; }
+  .hls > .events .events-handle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex: none;
+    width: 100%;
+    height: 22px;
+    border: 0;
+    padding: 0;
+    background: none;
+    cursor: grab;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .hls > .events .events-handle span { display: block; width: 40px; height: 5px; border-radius: 3px; background: #cfd6dc; }
+  .hls > .events .events-head { padding-top: 6px; }
   /* A fixed box for the logo, so the sheet is its full height the moment it
      opens rather than growing when the picture arrives -- the map is framed
      in the room above it, and that room must be known at once. */

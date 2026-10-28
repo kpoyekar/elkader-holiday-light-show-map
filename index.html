@@ -6,7 +6,7 @@
 <title>Elkader Holiday Light Show — Map</title>
 <meta name="description" content="Interactive map of the Elkader Holiday Light Show drive-through at the City Park and Campground. Find all 60 displays and who sponsored them.">
 <meta name="theme-color" content="#0d2a44">
-<link rel="stylesheet" href="style.css?v=3fc34ad2">
+<link rel="stylesheet" href="style.css?v=ab0d4305">
 </head>
 <body>
 
@@ -18,7 +18,7 @@
       <!-- The artwork, vector all the way through: every shape traced out of
            the Canva export, so nothing here is a picture of a map. It carries
            no lettering -- that is drawn over it, below. -->
-      <img class="basemap" id="basemap" src="assets/map.svg?v=3fc34ad2"
+      <img class="basemap" id="basemap" src="assets/map.svg?v=ab0d4305"
            alt="Map of the Holiday Light Show route through the Elkader City Campground">
       <!-- Every label on the map is drawn here as vector text, so it stays
            sharp at any zoom. The artwork underneath carries no lettering. -->
@@ -37,7 +37,7 @@
        printed where it can be read off the screen. _build/stamp.py writes the
        text; app.js reveals it on preview hosts only, so it never reaches the
        live site. -->
-  <p class="build" id="build" hidden>v85 &middot; 28 Oct 2026</p>
+  <p class="build" id="build" hidden>v86 &middot; 28 Oct 2026</p>
 
   <!-- The sponsor credit and, to its right, the zoom buttons. The credit was
        printed on the map itself, inside the loop; it lives out here now so it
@@ -73,13 +73,28 @@
        carries it is off screen. -->
   <aside class="panel" id="panel" aria-label="All displays">
     <div class="panel-top">
-      <img class="panel-logo" src="assets/show-logo.webp?v=3fc34ad2" width="393" height="391"
+      <img class="panel-logo" src="assets/show-logo.webp?v=ab0d4305" width="393" height="391"
            alt="Elkader Holiday Light Show">
       <!-- How many displays, and how many of them a search is showing. Under
            the logo rather than down in the footer, where it read as part of
            the sponsor credit. -->
       <p class="panel-count" id="count"></p>
     </div>
+    <!-- ===== Floral Hall: the special events =====
+         Tap the blue hall and this takes the panel over from here down --
+         the search, the names and the card step aside until the x. On a
+         phone app.js moves it out to rise as a sheet over the map instead.
+         The programme itself is the template at the foot of the page. -->
+    <section class="events" id="events" hidden aria-label="Special events at Floral Hall">
+      <button class="events-handle" id="eventsHandle" type="button" aria-label="Pull the events down or up"><span></span></button>
+      <div class="events-head">
+        <h2 class="events-title">Special events at Floral Hall</h2>
+        <p class="events-sub">Hot chocolate every Saturday, 5pm&ndash;7pm</p>
+        <button class="btn btn-sq btn-close events-x" id="eventsX" aria-label="Close the special events">&times;</button>
+      </div>
+      <div class="events-body" id="eventsBody"></div>
+      <a class="events-fb" href="https://www.facebook.com/elkaderholidaylights" target="_blank" rel="noopener noreferrer">Watch our Facebook page for updates &rarr;</a>
+    </section>
     <div class="panel-head">
       <label class="search">
         <svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="9" cy="9" r="5.5" stroke="currentColor" stroke-width="2" fill="none"/><path d="M13.5 13.5 17 17" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
@@ -102,11 +117,6 @@
         <span class="card-n" id="cardN"></span>
         <div class="card-body">
           <h2 class="card-name" id="cardName"></h2>
-          <!-- Only on the Floral Hall card: a line under the title, and the
-               special events, copied in from the template at the foot of
-               the page. -->
-          <span class="card-sub" id="cardSub" hidden></span>
-          <div class="card-text" id="cardText" hidden></div>
         </div>
       </div>
       <!-- The logo gets a row of its own under them, where it has the whole
@@ -162,46 +172,47 @@
 
 </div>
 
-<!-- ===== Floral Hall: the special events =====
-     Tap the blue building on the map and this opens on the card. It is
-     ordinary HTML, kept here rather than in data.js (which the build
-     rewrites), so it can be edited by hand when the programme changes. -->
+<!-- ===== Floral Hall: the programme =====
+     What the events page shows. Ordinary HTML, kept here rather than in
+     data.js (which the build rewrites), so it can be edited by hand when the
+     programme changes. -->
 <template id="eventsCard">
   <p class="ev-lead">Each Saturday from 5pm&ndash;7pm throughout the holiday season, we'll be serving hot chocolate in Floral Hall (the shelter house in the campground at the end of the route) thanks to our local community businesses and organizations volunteering their time.</p>
   <p class="ev-lead">A few of these Saturdays (and one special Thursday evening) will include fun, festive activities for you and your family to enjoy!</p>
+  <!-- One row per night. The date on the row (year-month-day) is drawn as
+       the calendar tile by app.js; the three lines are what happens, the
+       detail, and who hosts -- leave out any that do not apply. -->
   <ol class="ev-list">
-    <li>
-      <span class="ev-date">Saturday, November 21st</span>
-      <span class="ev-what"><b>Opening night!</b> Christmas Ornament Making + Holiday Music by Dave Beck</span>
+    <li data-date="2026-11-21">
+      <span class="ev-title">Opening night!</span>
+      <span class="ev-what">Christmas Ornament Making + Holiday Music by Dave Beck</span>
       <span class="ev-host">Hosted by FreedomBank</span>
     </li>
-    <li>
-      <span class="ev-date">Saturday, November 28th</span>
-      <span class="ev-what"><b>Shop Small Saturday</b> &mdash; visit downtown Elkader prior to going through the lights! There will be no added special event this evening due to the <a href="https://www.facebook.com/IAEACC" target="_blank" rel="noopener noreferrer">Elkader Area Chamber</a>'s events that day, but we WILL still be serving hot chocolate in Floral Hall from 5pm&ndash;7pm, so stop by and warm up with us!</span>
+    <li data-date="2026-11-28">
+      <span class="ev-title">Shop Small Saturday</span>
+      <span class="ev-what">Visit downtown Elkader prior to going through the lights! There will be no added special event this evening due to the <a href="https://www.facebook.com/IAEACC" target="_blank" rel="noopener noreferrer">Elkader Area Chamber</a>'s events that day, but we WILL still be serving hot chocolate in Floral Hall from 5pm&ndash;7pm, so stop by and warm up with us!</span>
       <span class="ev-host">Hosted by Mobile Track Solutions</span>
     </li>
-    <li>
-      <span class="ev-date">Saturday, December 5th</span>
-      <span class="ev-what"><b>Cookie Decorating</b> + Ugly Sweater Run (5pm start), cookies sponsored by Pedretti's Bakery</span>
+    <li data-date="2026-12-05">
+      <span class="ev-title">Cookie Decorating</span>
+      <span class="ev-what">+ Ugly Sweater Run (5pm start), cookies sponsored by Pedretti's Bakery</span>
       <span class="ev-host">Hosted by Alpine Communications</span>
     </li>
-    <li>
-      <span class="ev-date">Thursday, December 10th</span>
-      <span class="ev-what"><b>Central Madrigal Choir</b></span>
+    <li data-date="2026-12-10">
+      <span class="ev-title">Central Madrigal Choir</span>
     </li>
-    <li>
-      <span class="ev-date">Saturday, December 12th</span>
-      <span class="ev-what"><b>Visit Santa</b> + Sleigh Rides</span>
+    <li data-date="2026-12-12">
+      <span class="ev-title">Visit Santa</span>
+      <span class="ev-what">+ Sleigh Rides</span>
     </li>
-    <li>
-      <span class="ev-date">Saturday, December 19th</span>
-      <span class="ev-what"><b>Pajama Night</b> w/ Glow Sticks + Holiday Movie Ticket (good for the special Sunday holiday show on 12/20 at noon)</span>
+    <li data-date="2026-12-19">
+      <span class="ev-title">Pajama Night</span>
+      <span class="ev-what">w/ Glow Sticks + Holiday Movie Ticket (good for the special Sunday holiday show on 12/20 at noon)</span>
     </li>
   </ol>
-  <a class="ev-fb" href="https://www.facebook.com/elkaderholidaylights" target="_blank" rel="noopener noreferrer">Watch our Facebook page for last-minute changes, weather updates + more &rarr;</a>
 </template>
 
-<script src="data.js?v=3fc34ad2"></script>
-<script src="app.js?v=3fc34ad2"></script>
+<script src="data.js?v=ab0d4305"></script>
+<script src="app.js?v=ab0d4305"></script>
 </body>
 </html>

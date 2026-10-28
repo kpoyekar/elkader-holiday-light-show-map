@@ -38,8 +38,15 @@
   var countEl = document.getElementById('count');
   var qEl     = document.getElementById('q');
   var card    = document.getElementById('card');
+  var events  = document.getElementById('events');
   var tabMap  = document.getElementById('tabMap');
   var tabList = document.getElementById('tabList');
+
+  /* Floral Hall's box in page units: the shape's extent in the artwork, the
+     one under the FLORAL HALL label, which optimise_svg.py keeps blue for
+     the same reason. The tap target, the lettering and the phone's framing
+     all work off it. */
+  var FLORAL_HALL = { x: 222.6, y: 81.2, w: 64.3, h: 61.0 };
 
   /* ---------- phone or wide ---------- */
 
@@ -59,8 +66,13 @@
   function placeCard() {
     var phone = isPhone();
     hls.classList.toggle('phone', phone);
-    if (phone && card.parentNode !== hls) hls.appendChild(card);
-    else if (!phone && card.parentNode !== panel) panel.insertBefore(card, document.querySelector('.credit-foot'));
+    if (phone) {
+      if (card.parentNode !== hls) hls.appendChild(card);
+      if (events && events.parentNode !== hls) hls.appendChild(events);
+    } else {
+      if (card.parentNode !== panel) panel.insertBefore(card, document.querySelector('.credit-foot'));
+      if (events && events.parentNode !== panel) panel.insertBefore(events, document.querySelector('.panel-head'));
+    }
   }
 
   /* How much of the stage the open sheet covers, on a phone: the window the
@@ -69,7 +81,9 @@
      closes or is pulled down, never on a drag frame. */
   var sheetH = 0;
   function sheetInset() {
-    sheetH = (isPhone() && !card.hidden) ? card.offsetHeight : 0;
+    var open = null;
+    if (isPhone()) open = !card.hidden ? card : (events && !events.hidden ? events : null);
+    sheetH = open ? open.offsetHeight : 0;
     hls.style.setProperty('--sheet-h', sheetH + 'px');
   }
   function bottomInset() { return isPhone() ? sheetH : 0; }
@@ -486,6 +500,24 @@
     drawBulbs(svg);
     var frag = document.createDocumentFragment();
     DATA.labels.forEach(function (l) {
+      /* The hall is labelled with what happens in it rather than just its
+         name, since it is the one building you can tap: two centred lines
+         in the building's own lettering, where Canva had the one. */
+      if (l.t === 'FLORAL HALL') {
+        var cx = FLORAL_HALL.x + FLORAL_HALL.w / 2;
+        ['SPECIAL EVENTS', 'AT FLORAL HALL'].forEach(function (line, k) {
+          var tt = document.createElementNS(NS, 'text');
+          tt.setAttribute('x', cx.toFixed(2));
+          tt.setAttribute('y', (l.y + (k ? 4.5 : -4.5)).toFixed(2));
+          tt.setAttribute('font-size', l.s);
+          tt.setAttribute('fill', l.c);
+          tt.setAttribute('text-anchor', 'middle');
+          tt.setAttribute('data-hall', '1');
+          tt.textContent = line;
+          frag.appendChild(tt);
+        });
+        return;
+      }
       var t = document.createElementNS(NS, 'text');
       t.setAttribute('x', l.x);
       t.setAttribute('y', l.y);
@@ -581,6 +613,7 @@
       if (t.getAttribute('class') === 'free-tag') return false; // AVAILABLE
       if (t.hasAttribute('textLength')) return false;           // the credit
       if (t.hasAttribute('transform')) return false;            // rotated signs
+      if (t.hasAttribute('data-hall')) return false;            // the hall's lines
       return true;
     }).map(function (t) {
       var b = t.getBBox();
@@ -717,10 +750,7 @@
 
   /* The one building you can tap: hot chocolate is served there every
      Saturday, and the themed nights happen there, so the shelter house
-     carries the special events. Its box is the shape's extent in the
-     artwork, in page units -- the one under the FLORAL HALL label, which
-     optimise_svg.py keeps blue for the same reason. */
-  var FLORAL_HALL = { x: 222.6, y: 81.2, w: 64.3, h: 61.0 };
+     carries the special events. */
   var hallEl = null;
   (function hallMarker() {
     var k = MAP_W / DATA.page.w;
@@ -894,7 +924,7 @@
       togglePanel(true, true);
     }
     if (active !== null && mkEls[active]) mkEls[active].classList.remove('is-active');
-    leaveEvents();
+    closeEvents();
     active = i;
     mkEls[i].classList.add('is-active');
     var row = rowOf(i);
@@ -983,65 +1013,102 @@
     select(ROWS[r].i, true);
   }
 
-  /* The Floral Hall card: the special events, in place of a display. The
-     same card, so it docks in the list on a wide screen and rises as the
-     sheet on a phone like any other; the text comes from the template in
-     index.html, where it can be edited by hand. */
-  function openEvents() {
+  /* ---------- Floral Hall: the events page ---------- */
+
+  /* Tap the hall and the panel is taken over from under the show logo to
+     the foot by the special events: the search, the names and the card step
+     aside until the x. On a phone the same page rises as the sheet instead,
+     and the hall is brought up into the window above it. The programme is
+     the template in index.html, where it can be edited by hand; each row
+     carries its date, and the calendar tile is drawn from that here. */
+  var MONTHS = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'];
+  var DAYS = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
+
+  function dateTile(iso) {
+    var m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(iso || '');
+    if (!m) return null;
+    var d = new Date(+m[1], +m[2] - 1, +m[3]);
+    var tile = document.createElement('span');
+    tile.className = 'ev-tile';
+    tile.setAttribute('aria-hidden', 'true');
+    tile.innerHTML = '<span class="ev-month"></span><span class="ev-day"></span><span class="ev-wd"></span>';
+    tile.children[0].textContent = MONTHS[d.getMonth()];
+    tile.children[1].textContent = d.getDate();
+    tile.children[2].textContent = DAYS[d.getDay()];
+    return tile;
+  }
+
+  var eventsFilled = false;
+  function fillEvents() {
+    if (eventsFilled) return;
     var tpl = document.getElementById('eventsCard');
-    var text = document.getElementById('cardText');
-    if (!tpl || !text) return;
+    var body = document.getElementById('eventsBody');
+    if (!tpl || !body) return;
+    body.appendChild(tpl.content.cloneNode(true));
+    var rows = body.querySelectorAll('.ev-list li');
+    for (var k = 0; k < rows.length; k++) {
+      var li = rows[k];
+      var text = document.createElement('div');
+      text.className = 'ev-text';
+      while (li.firstChild) text.appendChild(li.firstChild);
+      var tile = dateTile(li.getAttribute('data-date'));
+      if (tile) li.appendChild(tile);
+      li.appendChild(text);
+      /* The date in words for a screen reader, since the tile is a picture
+         as far as it is concerned. */
+      if (tile) li.setAttribute('aria-label', li.getAttribute('data-date') + ': ' + text.textContent.trim());
+    }
+    eventsFilled = true;
+  }
+
+  function openEvents() {
+    if (!events) return;
+    fillEvents();
     if (isPhone()) {
       if (panel.classList.contains('open')) togglePanel(false, true);
     } else if (!panel.classList.contains('open')) {
       togglePanel(true, true);
     }
-    if (active !== null && mkEls[active]) mkEls[active].classList.remove('is-active');
-    lightBulb(null);
-    active = null;
+    /* A display's card gives way: one thing in the panel at a time. */
+    if (!card.hidden) closeCard();
     if (hallEl) hallEl.classList.add('is-active');
-
-    document.getElementById('cardN').textContent = '';
-    document.getElementById('cardName').textContent = 'Special events at Floral Hall';
-    var sub = document.getElementById('cardSub');
-    if (sub) { sub.textContent = 'Hot chocolate every Saturday, 5pm\u20137pm'; sub.hidden = false; }
-    text.textContent = '';
-    text.appendChild(tpl.content.cloneNode(true));
-    text.hidden = false;
-    var logo = document.getElementById('cardLogo');
-    logo.removeAttribute('src'); logo.alt = ''; logo.hidden = true;
-    document.getElementById('cardLinks').hidden = true;
-    var book = document.getElementById('cardBook');
-    if (book) { book.removeAttribute('href'); book.textContent = ''; book.hidden = true; }
-    card.classList.add('card-info');
-    card.classList.remove('no-logo');
-    card.setAttribute('aria-label', 'Special events at Floral Hall');
-
-    card.classList.remove('peek');
-    card.hidden = false;
+    panel.classList.add('events-open');
+    events.classList.remove('peek');
+    events.hidden = false;
+    document.getElementById('eventsBody').scrollTop = 0;
     sheetInset();
-    /* On a phone the hall is brought up into the window above the sheet,
-       as a bulb is. On a wide screen the map stays where it is. */
     if (isPhone()) {
       focusSpot({ x: (FLORAL_HALL.x + FLORAL_HALL.w / 2) / DATA.page.w,
                   y: (FLORAL_HALL.y + FLORAL_HALL.h / 2) / DATA.page.h });
     }
   }
 
-  function leaveEvents() {
-    if (!card.classList.contains('card-info')) return;
-    card.classList.remove('card-info');
-    var text = document.getElementById('cardText');
-    if (text) { text.textContent = ''; text.hidden = true; }
-    var sub = document.getElementById('cardSub');
-    if (sub) { sub.textContent = ''; sub.hidden = true; }
+  function closeEvents() {
+    if (!events || events.hidden) return;
+    events.hidden = true;
+    events.classList.remove('peek');
+    panel.classList.remove('events-open');
     if (hallEl) hallEl.classList.remove('is-active');
+    if (sheetH) {
+      sheetInset();
+      constrain();
+      apply();
+    }
+  }
+
+  if (events) {
+    document.getElementById('eventsX').addEventListener('click', closeEvents);
+    document.getElementById('eventsHandle').addEventListener('click', function () {
+      events.classList.toggle('peek');
+      sheetInset();
+      constrain();
+      apply();
+    });
   }
 
   function closeCard() {
     card.hidden = true;
     card.classList.remove('peek');
-    leaveEvents();
     if (active !== null && mkEls[active]) mkEls[active].classList.remove('is-active');
     lightBulb(null);
     active = null;
@@ -1263,8 +1330,8 @@
   });
 
   document.addEventListener('keydown', function (e) {
-    /* Escape closes the card, never the list. */
-    if (e.key === 'Escape') closeCard();
+    /* Escape closes the events page or the card, never the list. */
+    if (e.key === 'Escape') { if (events && !events.hidden) closeEvents(); else closeCard(); }
     if (e.target === qEl) return;
     if (e.key === 'ArrowRight') step(1);
     if (e.key === 'ArrowLeft') step(-1);

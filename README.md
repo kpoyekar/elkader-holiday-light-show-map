@@ -781,23 +781,40 @@ in step.
 ## Floral Hall and the special events
 
 Floral Hall is the one building on the map you can tap. It is blue, the
-colour every building used to be, so it reads as the one that does something;
-tap it and the card opens with the special events — hot chocolate every
-Saturday 5–7pm, and the themed nights — in place of a display. No bulbs on
-that card and no Previous / Next, since it is not a spot on the route. On a
-phone it rises as the sheet like any other card, and the hall is brought up
-into view above it.
+colour every building used to be, it carries a gold glow that breathes the
+whole time the map is open (steady while its page is open, and under
+`prefers-reduced-motion`), and its label reads SPECIAL EVENTS / AT FLORAL
+HALL rather than the name alone — `drawText()` swaps the two lines in for
+Canva's one. Tap it and the special events — hot chocolate every Saturday 5–7pm, and the
+themed nights — take the panel over from under the show logo to the foot: a
+blue-washed head with the title and the Saturday line, the intro, then one
+row per night with a calendar tile (month, day, weekday) beside what happens
+and who hosts, and the Facebook page as a button pinned at the foot. The
+search, the names and the card step aside behind it until the ×; picking a
+bulb while it is open closes it and shows that display's card. On a phone the
+same page rises as the sheet, taller than a display card, with the hall
+brought up into view above it; the handle pulls it down to the title.
 
-**The text lives in `index.html`**, in the `<template id="eventsCard">` at
-the foot of the page, as ordinary HTML. When the programme changes, edit it
-there; it is deliberately not in `data.js`, which the build rewrites. Dates
-are listed in the order they fall.
+It is one element, `#events`, placed in the panel after `.panel-top` on a
+wide screen and moved out to `.hls` on a phone by `placeCard()`, exactly as
+the card is. `panel.events-open` is what hides the list behind it.
+
+**The programme lives in `index.html`**, in the `<template id="eventsCard">`
+at the foot of the page, as ordinary HTML: two lead paragraphs, then one
+`<li>` per night carrying its date as `data-date="2026-12-05"` and up to
+three lines — `.ev-title` for what happens, `.ev-what` for the detail,
+`.ev-host` for who hosts; leave out any that do not apply. `fillEvents()`
+copies it in the first time the page opens and draws the tile from the date,
+so a new night is a new `<li>`. It is deliberately not in `data.js`, which
+the build rewrites. Dates are listed in the order they fall.
 
 The blue is put on by `blue_floral_hall()` in `optimise_svg.py`, which finds
 the building by its box in page units (`FLORAL_HALL_BOX`, the shape under the
-FLORAL HALL label) and stops the build if nothing is there. The tap target is
-the same box, `FLORAL_HALL` in `app.js`, sized like the bulb markers so it
-grows with the map. If the artwork ever moves, both boxes move with it.
+FLORAL HALL label), recolours both the plain shape and the clipped rectangle
+the tracer paints over it, and stops the build if nothing is there. The tap
+target is the same box, `FLORAL_HALL` in `app.js`, sized like the bulb
+markers so it grows with the map. If the artwork ever moves, both boxes move
+with it.
 
 ## Links on the card
 
