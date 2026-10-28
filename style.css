@@ -290,11 +290,17 @@ html, body {
    it is lit all the time, a gold glow that breathes, so nobody has to guess
    that the blue building does something. Steady while its page is open. */
 .mk-hall, .mk-hall::after { border-radius: calc(7px / var(--s, 1)); }
+/* The marker layer sits under the artwork and the lettering (they carry
+   z-indexes, it does not), which is fine for a tap target with nothing to
+   show -- but this one has a glow to show, so it alone is lifted above
+   them. The bulb markers stay where they are: the bulbs light themselves. */
+.mk-hall { z-index: 3; }
 .mk-hall::after {
   border-color: var(--gold);
   background: rgba(243,192,91,.16);
-  box-shadow: 0 0 0 calc(4px / var(--s, 1)) rgba(243,192,91,.45),
-              0 0 calc(18px / var(--s, 1)) calc(6px / var(--s, 1)) rgba(243,192,91,.75);
+  border-width: calc(3px / var(--s, 1));
+  box-shadow: 0 0 0 calc(4px / var(--s, 1)) rgba(243,192,91,.5),
+              0 0 calc(22px / var(--s, 1)) calc(8px / var(--s, 1)) rgba(243,192,91,.85);
   animation: hall-glow 1.4s ease-in-out infinite;
 }
 .mk-hall:hover::after,
