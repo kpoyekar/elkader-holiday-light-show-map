@@ -245,7 +245,7 @@ html, body {
 }
 @media (prefers-reduced-motion: reduce) {
   .free-tag { animation: none; opacity: 1; }
-  .mk-hall::after { animation: none; opacity: 1; }
+  .hall-glow { animation: none; opacity: 1; }
 }
 
 .markers { position: absolute; inset: 0; }
@@ -285,29 +285,20 @@ html, body {
   background: rgba(243,192,91,.34);
   box-shadow: 0 0 0 calc(5px / var(--s, 1)) rgba(243,192,91,.25);
 }
-/* Floral Hall: the one building you can tap. The target is the building's
-   own box, so its ring is a rounded rectangle rather than a circle -- and
-   it is lit all the time, a gold glow that breathes, so nobody has to guess
-   that the blue building does something. Steady while its page is open. */
-.mk-hall, .mk-hall::after { border-radius: calc(7px / var(--s, 1)); }
-/* The marker layer sits under the artwork and the lettering (they carry
-   z-indexes, it does not), which is fine for a tap target with nothing to
-   show -- but this one has a glow to show, so it alone is lifted above
-   them. The bulb markers stay where they are: the bulbs light themselves. */
-.mk-hall { z-index: 3; }
-.mk-hall::after {
-  border-color: var(--gold);
-  background: rgba(243,192,91,.16);
-  border-width: calc(3px / var(--s, 1));
-  box-shadow: 0 0 0 calc(4px / var(--s, 1)) rgba(243,192,91,.5),
-              0 0 calc(22px / var(--s, 1)) calc(8px / var(--s, 1)) rgba(243,192,91,.85);
+/* Floral Hall: the one building you can tap. The marker is only the tap
+   target here -- the building's box, with nothing drawn on it. What you see
+   is the glow app.js draws round the building's own outline in the
+   lettering layer (`.hall-glow`), gold, breathing all the time so nobody
+   has to guess that the blue building does something, and steady while its
+   page is open or the pointer is on it. */
+.mk-hall::after { display: none; }
+.hall-glow {
+  pointer-events: none;
   animation: hall-glow 1.4s ease-in-out infinite;
 }
-.mk-hall:hover::after,
-.mk-hall:focus-visible::after,
-.mk-hall.is-active::after { animation: none; opacity: 1; background: rgba(243,192,91,.3); }
+.hall-glow.is-on { animation: none; opacity: 1; }
 @keyframes hall-glow {
-  0%, 100% { opacity: .45; }
+  0%, 100% { opacity: .4; }
   50%      { opacity: 1; }
 }
 

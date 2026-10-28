@@ -47,6 +47,7 @@
      the same reason. The tap target, the lettering and the phone's framing
      all work off it. */
   var FLORAL_HALL = { x: 222.6, y: 81.2, w: 64.3, h: 61.0 };
+  var hallGlow = null;         // the gold outline drawn round the hall, below
 
   /* ---------- phone or wide ---------- */
 
@@ -489,6 +490,34 @@
     slot.appendChild(svg);
   })();
 
+  /* Floral Hall's glow: its own outline, lifted out of the artwork by the
+     build (DATA.hall.d, in page units), stroked twice -- blurred and wide
+     for the light, thin and crisp for the edge -- in gold. Drawn in the
+     lettering layer, under the names, so it moves and scales with the map
+     and follows the building's real, slightly tilted edges; a box round it
+     never lined up. It breathes all the time (CSS), and holds steady while
+     the hall's page is open. */
+  function drawHall(svg) {
+    var hall = DATA.hall;
+    if (!hall || !hall.d) return;
+    var defs = el('defs');
+    var f = el('filter', { id: 'hall-blur', x: '-40%', y: '-40%', width: '180%', height: '180%' });
+    f.appendChild(el('feGaussianBlur', { stdDeviation: '3.2' }));
+    defs.appendChild(f);
+    svg.appendChild(defs);
+    var g = el('g', { 'class': 'hall-glow' });
+    g.appendChild(el('path', { d: hall.d, fill: 'none', stroke: '#f3c05b', 'stroke-width': '8',
+                               'stroke-linejoin': 'round', opacity: '.9', filter: 'url(#hall-blur)' }));
+    g.appendChild(el('path', { d: hall.d, fill: 'none', stroke: '#f3c05b', 'stroke-width': '2.2',
+                               'stroke-linejoin': 'round' }));
+    svg.appendChild(g);
+    hallGlow = g;
+  }
+
+  function hallLit(on) {
+    if (hallGlow) hallGlow.classList.toggle('is-on', !!on);
+  }
+
   /* ---------- lettering ---------- */
 
   /* The map image carries no text at all — clean_map.py strips it out — so
@@ -498,6 +527,7 @@
     var svg = document.getElementById('textlayer');
     if (!svg || !DATA.labels) return;
     drawBulbs(svg);
+    drawHall(svg);
     var frag = document.createDocumentFragment();
     DATA.labels.forEach(function (l) {
       /* The hall is labelled with what happens in it rather than just its
@@ -761,6 +791,11 @@
     b._w = FLORAL_HALL.w * k;
     b._h = FLORAL_HALL.h * k;
     b.setAttribute('aria-label', 'Floral Hall: the special events');
+    /* Hovering holds the glow steady, as hovering a bulb warms it. */
+    b.addEventListener('pointerenter', function () { hallLit(true); });
+    b.addEventListener('pointerleave', function () { if (events.hidden) hallLit(false); });
+    b.addEventListener('focus', function () { hallLit(true); });
+    b.addEventListener('blur', function () { if (events.hidden) hallLit(false); });
     b.addEventListener('click', function (e) {
       e.stopPropagation();
       if (dragged) return;
@@ -1072,6 +1107,7 @@
     /* A display's card gives way: one thing in the panel at a time. */
     if (!card.hidden) closeCard();
     if (hallEl) hallEl.classList.add('is-active');
+    hallLit(true);
     panel.classList.add('events-open');
     events.classList.remove('peek');
     events.hidden = false;
@@ -1089,6 +1125,7 @@
     events.classList.remove('peek');
     panel.classList.remove('events-open');
     if (hallEl) hallEl.classList.remove('is-active');
+    hallLit(false);
     if (sheetH) {
       sheetInset();
       constrain();

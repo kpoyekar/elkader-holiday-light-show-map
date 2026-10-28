@@ -782,10 +782,15 @@ in step.
 
 Floral Hall is the one building on the map you can tap. It is blue, the
 colour every building used to be, it carries a gold glow that breathes the
-whole time the map is open (steady while its page is open, and under
-`prefers-reduced-motion`), and its label reads SPECIAL EVENTS / AT FLORAL
-HALL rather than the name alone — `drawText()` swaps the two lines in for
-Canva's one. Tap it and the special events — hot chocolate every Saturday 5–7pm, and the
+whole time the map is open (steady while its page is open, under the
+pointer, and under `prefers-reduced-motion`), and its label reads SPECIAL
+EVENTS / AT FLORAL HALL rather than the name alone — `drawText()` swaps the
+two lines in for Canva's one. The glow is the building's own outline:
+`hall_outline()` in `optimise_svg.py` lifts the traced path into
+`hall.json`, `build_data.py` carries it into `data.js` as `hall.d`, and
+`drawHall()` strokes it twice in gold in the lettering layer, blurred for
+the light and crisp for the edge. A box round the building never lined up,
+because the trace sits at a slight tilt. Tap it and the special events — hot chocolate every Saturday 5–7pm, and the
 themed nights — take the panel over from under the show logo to the foot: a
 blue-washed head with the title and the Saturday line, the intro, then one
 row per night with a calendar tile (month, day, weekday) beside what happens
