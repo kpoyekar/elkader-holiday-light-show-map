@@ -67,7 +67,7 @@ app.js          pan, zoom, markers, search, text layer
 data.js         the 60 displays and all 177 labels — GENERATED, see below
 assets/
   map.svg       the artwork — vector throughout, no lettering, no raster
-  k8ki-logo.svg sponsor wordmark (K8Ki-Saffron from the brand logo kit)
+  k8ki-logo.svg sponsor wordmark (the brand yellow #ebb248, from the rebrand logo kit)
   show-logo.webp  the show's own logo, at the top of the list — GENERATED
   logos/        43 participant logos, shown on the detail card — GENERATED
                 (49 of the 59 markers show one)
@@ -642,7 +642,7 @@ than attached to whatever it resembled. `FILE_ALIASES` covers what spelling
 alone can't — "RCTA", "TnT Powersports", "AitP logo".
 
 Two deliberate exceptions. `KEPT` is for logos already in `assets/logos/` that
-no file may overwrite, which is how K8Ki's saffron mark from the brand kit
+no file may overwrite, which is how K8Ki's yellow mark from the brand kit
 stays put. `NO_LOGO` is for spots that must not show one at all.
 
 Logos are named after the **business**, not the file they came from, so the
