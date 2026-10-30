@@ -154,6 +154,19 @@ html, body {
   overflow: visible;
   z-index: 2;
 }
+
+/* The candy dashes along the road (drawRoute in app.js): the same box and
+   units as the lettering, put before it in the DOM so it paints under the
+   names and the bulbs and over the artwork. */
+.routelayer {
+  position: absolute;
+  top: 0; left: 0;
+  width: 1584px;
+  height: 1224px;
+  pointer-events: none;
+  overflow: visible;
+  z-index: 2;
+}
 .textlayer text {
   font-family: var(--font);
   white-space: pre;

@@ -265,20 +265,47 @@ nothing is lost to a screen reader by the number becoming a picture.
 Hovering a row lights its bulb rather than filling a box behind it — the bulb
 is already the right colour, so there is nothing left to tint.
 
-### No direction arrows, for now
+### The way the cars go: candy dashes
 
-The map carries no chevrons. The artwork's twenty-two static clusters are
-lifted out by `optimise_svg.py` (`CHEVRON_FILL`), and the moving conveyor of
-chevrons that replaced them for a while is gone too: Ketaki asked for it to
-come out and will say what goes in its place. One green shape stays: the
-curved U-turn arrow at the junction of 42–45, which is not a run of chevrons.
+Red and white dashes slide along the road in the direction of travel: the
+"candy dashes" Ketaki chose on 30 Oct 2026 from a page of mock-ups (seven
+treatments, none of them an arrow, which she dislikes). No arrow is left on
+the map: the artwork's twenty-two chevron clusters and the curved arrow in
+the fork by 44 all come off in `optimise_svg.py` (every `CHEVRON_FILL` path).
 
-What the conveyor needed is still built, in case it is wanted again:
-`_build/route_path.py` derives a centreline down the middle of the road from
-the traced ribbon (fill, thin, trace, prune the whiskers, rejoin, smooth,
-resample) and points each stretch the way Ketaki's own chevrons pointed. It
-is written to `routepath.json` and carried in `data.js` as `routepath`;
-`chevrons.json` holds the lifted clusters. Nothing on the page reads either.
+The route the dashes follow is one continuous drive, `route.tour` in
+`data.js`. `_build/route_tour.py` takes the stretches `route_path.py` derives
+from the road ribbon (`routepath.json`: cut at every junction and pointed the
+way the artwork's chevrons pointed), puts them in the order the spots are
+numbered, and bridges each gap with a path through the middle of the road
+(Dijkstra over the road mask, straight when under 16 units). Two things in
+its `ORDER` list are hand-made. The first pass up the right-hand road turns
+off at the fork by 44 for 12 and 13 (Ketaki: "from 10, 44, 12, 13 that way
+and then up and out"): that fork is a hairpin, the branch leaving the trunk
+going back down-left, so the drive runs up the trunk to (489,300), through
+the middle of the merged ribbon at (485,295) and down into the branch, which
+keeps the marks on the grey road through the turn. And the second pass, from
+43, goes north at 45 and out. The loop round the parking area is a branch
+(`route.branches`). The short piece of trunk between the fork and the
+junction at 45 is left unmarked, since no car drives it. `ORDER` indexes
+`routepath.json`, so look at it again whenever that file is regenerated.
+`route_tour.py` writes `_build/tour.json`, which `build_data.py` carries into
+`data.js`.
+
+Two signs stand on the road in the artwork, the EXIT sign over the junction
+by the exit and the PARKING AREA sign on the parking road. The road runs under
+them and so do the dashes: `route_tour.py` finds each by its fill (`SIGN_FILLS`)
+and writes its box as `route.hide`, which the page masks the dashes out of.
+
+On the page, `drawRoute()` in app.js draws the drive on a layer of its own
+(`.routelayer`: under the lettering and the bulbs, in map units) as three
+dashed strokes sliding at 18 units a second, animated with SMIL: a navy
+shadow (6 on, 4 off) so the white reads on the grey road, red dashes (6 on,
+14 off) and white dashes the same but half a period along, so the two take
+turns. Under `prefers-reduced-motion` the dashes stand still.
+
+`chevrons.json` still holds the lifted clusters and `routepath` the raw
+stretches, in case either is wanted again.
 
 ### The road is Canva's width
 

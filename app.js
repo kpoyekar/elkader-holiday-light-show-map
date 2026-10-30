@@ -538,6 +538,63 @@
     if (hallGlow) hallGlow.classList.toggle('is-on', !!on);
   }
 
+  /* ---------- the way the cars go ---------- */
+
+  /* Red and white dashes slide along the road the way the traffic goes: the
+     candy dashes Ketaki chose from the mock-ups on 30 Oct 2026, in place of
+     any arrow. The route is one drive with the spots in order, put together
+     by _build/route_tour.py from the road's centre line and carried in
+     data.js as route.tour, with the loop round the parking area as a branch.
+     It is drawn on a layer of its own under the lettering and the bulbs, in
+     map units, so it scales with the map. SMIL rather than CSS: a sliding
+     dash offset on an SVG stroke is what SMIL does best, with no script per
+     frame. Under prefers-reduced-motion the dashes stand still. */
+  (function drawRoute() {
+    var route = DATA.route, page = DATA.page;
+    var text = document.getElementById('textlayer');
+    if (!route || !route.tour || !page || !text) return;
+    var svg = el('svg', { 'class': 'routelayer', viewBox: '0 0 ' + page.w + ' ' + page.h,
+                          preserveAspectRatio: 'none', 'aria-hidden': 'true', focusable: 'false' });
+    text.parentNode.insertBefore(svg, text);
+    var d = [route.tour].concat(route.branches || []).map(function (p) {
+      return 'M' + p.map(function (q) { return q[0] + ' ' + q[1]; }).join(' L ');
+    }).join(' ');
+    /* The EXIT and PARKING AREA signs stand on the road, and the road runs
+       under them; the dashes go under too, masked out of each sign's box
+       (route.hide, measured from the artwork by route_tour.py). */
+    var layer = svg;
+    if (route.hide && route.hide.length) {
+      var defs = el('defs', {});
+      var mask = el('mask', { id: 'route-hide', maskUnits: 'userSpaceOnUse',
+                              x: 0, y: 0, width: page.w, height: page.h });
+      mask.appendChild(el('rect', { x: 0, y: 0, width: page.w, height: page.h, fill: '#fff' }));
+      route.hide.forEach(function (b) {
+        mask.appendChild(el('rect', { x: b[0], y: b[1], width: b[2] - b[0], height: b[3] - b[1], fill: '#000' }));
+      });
+      defs.appendChild(mask);
+      svg.appendChild(defs);
+      layer = el('g', { mask: 'url(#route-hide)' });
+      svg.appendChild(layer);
+    }
+    var still = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+    var SPEED = 18;                                   // map units a second
+    function dashes(width, on, period, offset, colour, opacity) {
+      var p = el('path', { d: d, fill: 'none', stroke: colour, 'stroke-width': width,
+                           'stroke-linecap': 'round', 'stroke-linejoin': 'round',
+                           'stroke-dasharray': on + ' ' + (period - on),
+                           'stroke-dashoffset': offset, opacity: opacity });
+      if (!still) {
+        p.appendChild(el('animate', { attributeName: 'stroke-dashoffset', from: offset,
+                                      to: offset - period, dur: (period / SPEED) + 's',
+                                      repeatCount: 'indefinite' }));
+      }
+      layer.appendChild(p);
+    }
+    dashes(3.6, 6, 10, 0, '#0d2a44', .3);    // a shadow under both, so white reads on grey
+    dashes(2.4, 6, 20, 0, '#d8352b', 1);     // red
+    dashes(2.4, 6, 20, 10, '#ffffff', 1);    // white, in the slots between the red
+  })();
+
   /* ---------- lettering ---------- */
 
   /* The map image carries no text at all — clean_map.py strips it out — so
