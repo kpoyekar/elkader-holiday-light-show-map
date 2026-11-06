@@ -64,13 +64,13 @@ hosting instead of GitHub Pages. Nothing outside it is needed at runtime.
 index.html      the page
 style.css       all styling
 app.js          pan, zoom, markers, search, text layer
-data.js         the 60 displays and all 177 labels — GENERATED, see below
+data.js         the 68 display spots and all 216 labels — GENERATED, see below
 assets/
   map.svg       the artwork — vector throughout, no lettering, no raster
   k8ki-logo.svg sponsor wordmark (the brand yellow #ebb248, from the rebrand logo kit)
   show-logo.webp  the show's own logo, at the top of the list — GENERATED
-  logos/        43 participant logos, shown on the detail card — GENERATED
-                (49 of the 59 markers show one)
+  logos/        52 participant logos, shown on the detail card — GENERATED
+                (59 of the 66 named spots show one)
   fonts/
     proxima-nova-regular.woff2          the page's typeface, 30 KB
     proxima-nova-bold.woff2             its bold, 31 KB
@@ -102,6 +102,44 @@ one label, and no QR code, logo or internal notes. Page 1 is the older layout
 and is not used.
 
 ## How it's put together
+
+### The 1-67 lineup (6 Nov 2026)
+
+Ketaki rearranged the map in Canva on 5-6 Nov 2026: new numbering, eight more
+spots (68 in all; 68 is EXIT Driftless Group's second, on the road by the
+EXIT sign), and new businesses -- Fidelity Bank (17), Clayton Drug
+(45), Bennington Construction (46), Elkader Pack 62 & Troop 62 (47), Outdoor
+Creations (51), River Sound Co-op (52) and the Elkader Police Department
+(65). Schlee & Sommers, who light the entrance arches, are spot 1 now rather
+than an extra beside the numbered spots. Julie Doeppke - American Family
+Insurance and Ethan Koehn Construction are gone. 53 and 54 are for sale.
+
+The base artwork did not change -- the same image of roads and buildings in
+both exports -- so `assets/map.svg` was not re-traced. Three pieces of it
+moved, and are shifted by exactly what Canva moved them (`MOVES` in
+`optimise_svg.py`): the ELKADER lettering, out to the right of the loop, and
+the welcome shed and the KCTN mailbox, by a few units. The view's crop box
+(`CROP` in app.js) runs out to x 724 so ELKADER is inside it.
+
+One number is printed wrong on the artwork and corrected by position
+(`NUMBER_FIXES` in `build_data.py`): two bulbs read 41 and 42 is missing; the
+lower of Alpine's two bulbs sits between 41 and 43, so its "41" is 42. The
+printed map wants the same fix in Canva. (Wilke's read 30 the same way, for
+20; Ketaki fixed that one in Canva.)
+
+The same day Canva gained the Central CSD Photo Op beside Floral Hall -- a
+camera icon, lifted from the PDF as vector into `map.svg` by `ICONS` in
+`optimise_svg.py` (shapes in `_build/camera.json`), with its two lines of
+lettering coming through as ordinary labels -- and a second HOLIDAY LIGHT SHOW
+BANNER label under the trail counter (the first, by the ELKADER sign, is
+still on the artwork too). The red bulbs take Canva's red, `#bd7055`, in place
+of the October export's `#ac6455`.
+
+Ketaki sent logos for Clayton Drug, Bennington Construction, the Elkader
+Police Department and River Sound Co-op the same day; Fidelity Bank, Elkader
+Pack 62 & Troop 62 and Outdoor Creations have none yet. None of the new
+businesses is in the October participant sheet, so none has links yet.
+
 
 Four layers, bottom to top:
 
@@ -164,17 +202,16 @@ nothing to look them up by.
 
 ### Spots with no name yet
 
-`UNNAMED` in `build_data.py` holds the spots whose participant is not settled
-— 56, where Julie Doeppke pulled out, and 60, where Ethan Koehn Construction
-is coming off. The bulb, the number and the marker all stay: the display is
-there and its number is printed on it. What goes is the name, from the map and
-from the list, along with any logo and links that spot had.
+`UNNAMED` in `build_data.py` holds the spots with no participant: 53 and 54
+since the 6 Nov 2026 lineup (56 and 60 before it). The bulb, the number and the
+marker all stay: the display is there and its number is printed on it.
 
-On the map itself they say **AVAILABLE** where that spot's business name sat
-— `build_data.py` keeps the slot as it drops the name, so the word lands
-under the bulb for one and beside it for the other, both laid out by hand in
-Canva around their neighbours. An offset from the bulb would have to guess at
-that, and did: at +9 it sat on the bulb.
+On the map they say **AVAILABLE**. A spot that lost a business name takes the
+word where the name sat (`build_data.py` keeps the slot as it drops the name);
+53 and 54 never had one on the artwork, so `FREE_TAGS` places it by hand.
+The two bulbs stand closer together than one AVAILABLE is wide, so the words
+step down one under the other: 53's first, as far left as River Sound Co-op's
+name allows, then 54's, centred under its own bulb.
 
 `TAG_CLEAR` then stands it 7 units further off the bulb than the name stood,
 along the line from the bulb to the middle of where the name was — so a name
@@ -201,11 +238,13 @@ published map.
 
 ### Eight participants have two spots
 
-Peace Church has 5 and 6, Alpine Communications 12 and 13, MercyOne 15 and
-17, Pattison Sand 20 and 22, Brown's 23 and 25, EXIT 24 and 26, St Joseph 51
-and 52, CJ Moyna 57 and 58. Most of those pairs are **not** consecutive, and
-the two markers have different ids, so nothing in the data ties them together
-except the name — which is what `groupSpots()` in `app.js` groups them by.
+Peace Church has 6 and 7, Pattison Sand 15 and 16, EXIT Driftless Group 18
+and 68, Brown's 36 and 37, MercyOne 40 and 41, Alpine Communications 42 and
+43, St Joseph 60 and 61, CJ Moyna 66 and 67 (the 6 Nov 2026 lineup: most
+names sit between their two numbers on the artwork; EXIT's two are far apart,
+one by the arches and one by the EXIT sign). The two markers have
+different ids, so nothing in the data ties them together except the name —
+which is what `groupSpots()` in `app.js` groups them by.
 
 They are one participant with two displays, so everywhere a person reads a
 name they are one thing:
@@ -220,18 +259,18 @@ name they are one thing:
 The markers on the map stay one per spot. The map says where each display
 actually is, and that does not change.
 
-### One number on the page: 50 displays
+### One number on the page: 66 displays
 
-The count under the show logo reads **50 displays**. (It stood in the
-top-left header too, until the header went on 28 Oct 2026: the page sits in
-a section of the GoDaddy site that carries its own heading, so "Holiday Light
-Show · Elkader, Iowa · 50 displays" in the corner said it twice.)
+The count under the show logo reads **66 displays**: every spot with a
+business on it, so a business with two spots counts twice, and the two spots
+still for sale (53 and 54) are not counted, since there is no display there
+yet. A search shows how many of them match, "4 of 66 displays".
 
-Counted in participants, called displays — Ketaki's wording. A business with
-two spots is one row in the list and counts once, and the two spots still to
-be settled are nobody yet, so they are shown but not counted. The map itself
-carries 60 numbered bulbs, which is a different thing and not a number the
-page prints anywhere.
+Until 6 Nov 2026 it counted participants instead -- a business with two spots
+once -- and read 50, then 58 for the new lineup; Ketaki asked for it to count
+the displays. (It stood in the top-left header too, until the header went on
+28 Oct 2026: the page sits in a section of the GoDaddy site that carries its
+own heading.) The map carries 68 numbered bulbs in all.
 
 The card carries no total at all, only which bulb to look for: "Spots 12 &
 13". It used to carry its own position in the list, which put two totals on
@@ -446,20 +485,27 @@ exception has to exist: 12 and 13 are both Alpine Communications and sit 24
 apart, closer than any other pair on the map, so the first rule would
 otherwise be exactly the thing pulling them apart.
 
-**And two spots are hers to name.** 18 is gold — K8Ki's own — and 14 is not
-red. `PINNED` holds the first, and the colouring is worked out around it.
+**And some colours are hers to name.** She asked for them by business, and
+they are carried to the new numbers by business: K8Ki (14) gold, Art in the
+Park (12) not red, Elkader Fitness (39) red, Pattison Sand (15 and 16) red,
+Turkey River Axeperience (38) grey, EXIT (18) blue, and Fidelity Bank (17)
+gold (asked for on 6 Nov 2026). `PINNED` holds them, and
+the clearance rule stands aside for them -- she can put her colours where she
+likes -- so the build names each pinned pair that ends up close, every time.
 
-`RECOLOUR` in `build_data.py` holds the result — fourteen bulbs given a
-different colour, the fewest that satisfy all three rules. The spread stays
-even: 16 red, 15 blue, 15 gold, 13 grey. 18 is already gold in the artwork,
-which is why it is not in the table; pinning it there is what keeps it so.
+`RECOLOUR` in `build_data.py` holds the result for the 6 Nov 2026 lineup —
+eighteen bulbs given a different colour, found by an exhaustive search as
+the fewest that satisfy all three rules; six of them are her asks (Fidelity
+Bank's gold and EXIT's blue are in the Canva file itself). The spread stays
+even: 17 red, 19 blue, 15 gold, 17 grey. Red is Canva's own, `#bd7055`.
 
 50 is as far as the first rule goes. The artwork has four bulb colours and the
 bulbs sit about 26 apart, so at 55 a bulb has five others inside the radius
 and there is no colouring left to find.
 
-The trace actually returns seven hex values, but three are noise — `#ac685b`
-is the same red as `#ac6455`, `#bbbbbb` and `#cdcdcd` the same grey as
+The trace actually returns several hex values for four colours — `#ac685b`
+is the same red as `#ac6455` (and the 6 Nov 2026 export samples that red a few
+points lighter again, as `#bd7055`, `#bd745a` and `#c1795f`), `#bbbbbb` and `#cdcdcd` the same grey as
 `#c7c7c7`, none of them tellable apart on screen. `BULB_PALETTE` snaps them to
 the four real colours first, so "a different colour" means a visible one.
 
@@ -653,6 +699,24 @@ file out of `Logos/` takes it off the map.
 They are saved as WebP, about a third the size of PNG with the transparency
 intact, and a card loads only its own, so nobody downloads every logo for a
 map they never tap.
+
+### Logos that are more than a logo
+
+Two treatments in `extract_logos.py`, keyed by the file's name; the file in
+`../Logos` stays exactly as it was sent:
+
+* `CROP` cuts a file down to the logo. Bennington Construction sent a
+  Facebook banner, so the card shows the lettering and mark without the strip
+  of photos under them; the Elkader Police Department's white lettering keeps
+  a band of its black ground round it.
+* `FLAT_BG` takes off a flat coloured ground the way white comes off (only
+  what is reachable from the edge, faded at the margin): River Sound Co-op's
+  watercolour came on grey, and sits on the card's white instead.
+* `PHOTO` shows a photo just as it was sent, only scaled down: no trim, no
+  crop, nothing made clear. Foundations Wealth Partners' card shows the photo
+  of their booth they sent. (`INK`, which keeps only the ink of lettering
+  photographed on cloth, is there too but unused: Ketaki wanted the photo
+  itself rather than a logo recreated from it.)
 
 ### The white background comes off
 
@@ -925,13 +989,16 @@ only the stack is the label. A rule that matches nothing stops the build.
 ## Withholding a logo
 
 `NO_LOGO` in `extract_logos.py` — spots that must not show one whatever turns
-up for them in either source. St Joseph Catholic Church asked for theirs off.
+up for them in either source. St Joseph Catholic Church asked for theirs off
+(spots 60 and 61 since the 6 Nov 2026 lineup).
 
 ## Swapping printed numbers
 
 `SWAP_NUMBERS` in `build_data.py` exchanges two numerals on the artwork's own
 text spans, so the marker and the label move together and stay on the same
-bulb as each other. 12 and 13 are swapped there.
+bulb as each other. 12 and 13 were swapped there under the old numbering;
+the list is empty now. A numeral that is simply wrong is corrected by
+position instead, with `NUMBER_FIXES` (see "The 1-67 lineup").
 
 ## Participants who pull out
 

@@ -22,8 +22,11 @@
      the page and are meant to. The top is the page's own top: High Street
      runs off it there, and that is the way out, so none of it may be cut.
      The bottom sits just under the Pony Hollow Trail's name and the arrow
-     down High Street -- as close as it goes without cutting either. */
-  var CROP = { x: 0, y: 0, w: 668, h: 583 };
+     down High Street -- as close as it goes without cutting either. The
+     right edge reached 668 until 6 Nov 2026, when the Canva map moved the
+     ELKADER lettering out beside the loop; it ends at 718, so the box runs
+     a few units past it. */
+  var CROP = { x: 0, y: 0, w: 724, h: 583 };
   function cropPx() {
     var k = MAP_W / DATA.page.w;
     return { x: CROP.x * k, y: CROP.y * k, w: CROP.w * k, h: CROP.h * k };
@@ -115,16 +118,15 @@
      are one each, and the spots still to be settled are nobody yet. Taken
      from the data, because a number written into the page by hand went stale
      the moment somebody pulled out. */
-  var PARTICIPANTS = (function () {
-    var seen = {}, n = 0;
-    (DATA.spots || []).forEach(function (sp) {
-      if (sp.name && !seen[sp.name]) { seen[sp.name] = 1; n++; }
-    });
-    return n;
-  })();
+  /* Every spot with a business on it is a display, so a business with two
+     spots counts twice; the spots still for sale are not counted -- there is
+     no display there yet. (Until 6 Nov 2026 this counted participants, a
+     business with two spots once; Ketaki asked for the number of displays.) */
+  var DISPLAYS = (DATA.spots || []).reduce(function (n, sp) {
+    return n + (sp.name ? (sp.nums || [0]).length : 0);
+  }, 0);
 
-  /* Called displays, counted in participants: a business with two spots is
-     one entry on the list and counts once. Ketaki's wording. */
+  /* Ketaki's wording: displays. */
   function tally(n) {
     return n + (n === 1 ? ' display' : ' displays');
   }
@@ -1305,7 +1307,7 @@
       li.appendChild(b);
       listEl.appendChild(li);
       shown++;
-      if (row.name) named++;
+      if (row.name) named += row.nums.length;
     });
     if (!shown) {
       var p = document.createElement('li');
@@ -1315,9 +1317,9 @@
     }
     /* The same count as the header, so the two never disagree. The rows with
        no name yet are shown but not counted -- there is nobody to count. */
-    countEl.textContent = named === PARTICIPANTS
-      ? tally(PARTICIPANTS)
-      : named + ' of ' + tally(PARTICIPANTS);
+    countEl.textContent = named === DISPLAYS
+      ? tally(DISPLAYS)
+      : named + ' of ' + tally(DISPLAYS);
   }
 
   /* On a wide screen the list is open and stays open. There is no close
