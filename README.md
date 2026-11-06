@@ -69,7 +69,7 @@ assets/
   map.svg       the artwork — vector throughout, no lettering, no raster
   k8ki-logo.svg sponsor wordmark (the brand yellow #ebb248, from the rebrand logo kit)
   show-logo.webp  the show's own logo, at the top of the list — GENERATED
-  logos/        52 participant logos, shown on the detail card — GENERATED
+  logos/        53 participant logos, shown on the detail card — GENERATED
                 (59 of the 66 named spots show one)
   fonts/
     proxima-nova-regular.woff2          the page's typeface, 30 KB
@@ -717,6 +717,18 @@ Two treatments in `extract_logos.py`, keyed by the file's name; the file in
   of their booth they sent. (`INK`, which keeps only the ink of lettering
   photographed on cloth, is there too but unused: Ketaki wanted the photo
   itself rather than a logo recreated from it.)
+
+### A photo with the logo over it
+
+`COMPOSE` in `extract_logos.py` builds a card image from a photo with a logo
+laid over its corner. K8Ki Design Studio's card (spot 14) is Ketaki at work
+with a client -- DSC_2628 from the 2020 website photos, kept as
+`_build/sources/k8ki-studio-photo.jpg` -- with the K8Ki lock-up small in the
+bottom-right corner: the mark in white with DESIGN STUDIO under it, set the
+way the sponsor credit sets it, straight on the photo with no background and
+a soft shadow so the white reads on the pale patches. It replaced the plain
+K8Ki mark on that card on 6 Nov 2026. The mark is rendered from
+`assets/k8ki-logo.svg`, the credit's own file, recoloured white.
 
 ### The white background comes off
 
