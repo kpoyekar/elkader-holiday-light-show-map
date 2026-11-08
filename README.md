@@ -103,6 +103,53 @@ and is not used.
 
 ## How it's put together
 
+### The 1-70 lineup (7 Nov 2026)
+
+Ketaki rearranged page 2 again on 6-7 Nov 2026: 1-14 kept their numbers, the
+rest were renumbered, and there are 70 spots now, every one taken. New
+businesses: Senior Life Solutions (42), Casey's (57) and Rapid Innovation &
+Yellow Iron (65 and 66); Pattison Sand Company moved to the top road (62 and
+63); CJ Moyna's pair (68 and 69) now names Mobile Track Solutions and the
+Earthmoving Legacy Center too; Fidelity Bank is 15 and EXIT 16 and 70, both
+labelled "EXIT Realty" on the artwork now. The Collective and Art in the Park
+swapped names (12 and 13). 53 and 54 are no longer for sale, so nothing on
+the map says AVAILABLE.
+
+The artwork itself did not change -- only lettering and bulbs -- so
+`assets/map.svg` stands. The new numbers follow the drive the candy dashes
+already take, so `route_tour.py` stands too.
+
+Corrected on the page, and worth fixing in Canva:
+
+* two bulbs read 44 and 41 is missing: Alliant Energy, in the middle of the
+  loop, kept its old 44 (`NUMBER_FIXES`)
+* two bulbs read 65 and 66 is missing: the left of Rapid & YellowIron's pair
+  is 66 (`NUMBER_FIXES`)
+* 58, Drone Xperts, has its number and name but lost its bulb; the page puts
+  back the one that stood there on the 6 Nov export (`ADD_BULBS`)
+* "4H/County Countil" reads "4H County Council" (`TEXT_FIXES`)
+
+Bulb colours were worked out again (see "Bulb colours"). The right-hand
+road now carries bulbs where it runs beside the outer one, and at 50 apart
+four colours no longer go round; the rule is 47 now.
+
+Logos for Senior Life Solutions (the yard-sign graphic Ashley made for them,
+shown as sent), Casey's and Elkader Pack 62 & Troop 62 came from Ashley
+Augustyn on 6 Nov. Links come from the committee's live participants sheet
+now: its Participant and Website columns only, copied to
+`_build/sources/participant-websites.csv` (see "Links on the card").
+
+v103, the same day, after Ketaki looked at v102:
+
+* colours: only K8Ki gold, EXIT blue and Pattison grey are hers now; the
+  rest were spread as far apart as they go, and spot n and n+1 never match
+  (Fidelity Bank, beside K8Ki, is no longer gold)
+* the Facebook and Instagram links the live sheet's single column had lost
+  came back from the October sheet
+* Rapid Innovation & Yellow Iron link to yellowironequip.com and Rapid
+  Innovation's Facebook page; cjmoyna.com is back on the CJ Moyna pair
+* K8Ki's card photo is cropped to 2:1 and fills the card's width
+
 ### The 1-67 lineup (6 Nov 2026)
 
 Ketaki rearranged the map in Canva on 5-6 Nov 2026: new numbering, eight more
@@ -236,13 +283,14 @@ The exact wording of the name being removed is listed, so if the Canva text
 changes the build stops and says so rather than quietly leaving a name on a
 published map.
 
-### Eight participants have two spots
+### Nine participants have two spots
 
-Peace Church has 6 and 7, Pattison Sand 15 and 16, EXIT Driftless Group 18
-and 68, Brown's 36 and 37, MercyOne 40 and 41, Alpine Communications 42 and
-43, St Joseph 60 and 61, CJ Moyna 66 and 67 (the 6 Nov 2026 lineup: most
-names sit between their two numbers on the artwork; EXIT's two are far apart,
-one by the arches and one by the EXIT sign). The two markers have
+Peace Church has 6 and 7, EXIT Driftless Group 16 and 70, Alpine
+Communications 26 and 27, MercyOne 28 and 29, Brown's 32 and 33, St Joseph 59
+and 60, Pattison Sand Company 62 and 63, Rapid Innovation & Yellow Iron 65 and
+66, CJ Moyna 68 and 69 (the 7 Nov 2026 lineup: most names sit between their
+two numbers on the artwork; EXIT's two are far apart, one inside the loop and
+one by the EXIT sign). The two markers have
 different ids, so nothing in the data ties them together except the name —
 which is what `groupSpots()` in `app.js` groups them by.
 
@@ -259,12 +307,13 @@ name they are one thing:
 The markers on the map stay one per spot. The map says where each display
 actually is, and that does not change.
 
-### One number on the page: 66 displays
+### One number on the page: 70 displays
 
-The count under the show logo reads **66 displays**: every spot with a
-business on it, so a business with two spots counts twice, and the two spots
-still for sale (53 and 54) are not counted, since there is no display there
-yet. A search shows how many of them match, "4 of 66 displays".
+The count under the show logo reads **70 displays**: every spot with a
+business on it, so a business with two spots counts twice, and a spot still
+for sale is not counted, since there is no display there yet (there are none
+since the 7 Nov 2026 lineup; it read 66 while 53 and 54 were for sale). A
+search shows how many of them match, "4 of 70 displays".
 
 Until 6 Nov 2026 it counted participants instead -- a business with two spots
 once -- and read 50, then 58 for the new lineup; Ketaki asked for it to count
@@ -473,10 +522,10 @@ horizontal flip turns that column through 180° while leaving the y column
 alone. `read_bulb_placements` takes the angle from the y column and carries
 the flip separately as the sign of `sx`.
 
-### Bulb colours: two rules
+### Bulb colours
 
-**No two bulbs within 50 page units of each other share a colour** — about two
-bulbs either way along the cord. 12, 13 and 14 all came off the artwork red,
+**No two bulbs within 47 page units of each other share a colour** — about two
+bulbs either way along the cord (50 until the 7 Nov 2026 lineup). 12, 13 and 14 all came off the artwork red,
 which on the map reads as one smudge and in the list looks like a mistake.
 
 **Except a participant's own two bulbs, which must match each other.** They
@@ -485,37 +534,52 @@ exception has to exist: 12 and 13 are both Alpine Communications and sit 24
 apart, closer than any other pair on the map, so the first rule would
 otherwise be exactly the thing pulling them apart.
 
-**And some colours are hers to name.** She asked for them by business, and
-they are carried to the new numbers by business: K8Ki (14) gold, Art in the
-Park (12) not red, Elkader Fitness (39) red, Pattison Sand (15 and 16) red,
-Turkey River Axeperience (38) grey, EXIT (18) blue, and Fidelity Bank (17)
-gold (asked for on 6 Nov 2026). `PINNED` holds them, and
-the clearance rule stands aside for them -- she can put her colours where she
-likes -- so the build names each pinned pair that ends up close, every time.
+**And neighbours in the list differ.** Spot n and spot n+1 never share a
+colour unless they are one participant's pair, so the list alternates as the
+map does.
 
-`RECOLOUR` in `build_data.py` holds the result for the 6 Nov 2026 lineup —
-eighteen bulbs given a different colour, found by an exhaustive search as
-the fewest that satisfy all three rules; six of them are her asks (Fidelity
-Bank's gold and EXIT's blue are in the Canva file itself). The spread stays
-even: 17 red, 19 blue, 15 gold, 17 grey. Red is Canva's own, `#bd7055`.
+**Three colours are hers to name**: K8Ki Design Studio (14) gold, EXIT
+Driftless Group (16 and 70) blue, Pattison Sand Company (62 and 63) grey.
+`PINNED` holds them, and the clearance rule holds for them too. On 7 Nov 2026
+Ketaki let the rest go -- "rest can be whatever ... alternate them so same
+colors are not close" -- so her earlier picks (Fidelity gold, Pattison red,
+Elkader Fitness red, Turkey River grey, Art in the Park not red) are gone;
+Fidelity Bank in particular is no longer gold beside K8Ki.
 
-50 is as far as the first rule goes. The artwork has four bulb colours and the
-bulbs sit about 26 apart, so at 55 a bulb has five others inside the radius
-and there is no colouring left to find.
+Within those rules the colours are spread as far apart as a search can get
+them: every pair of same-coloured bulbs closer than 90 costs more the closer
+it is, and `_build/colour_spread.py` (simulated annealing, 400 restarts, about
+a minute) makes the total as small as it can, then keeps the four colours
+near even, and only last, as a tiebreak, Canva's own colour. It prints the
+table. Against v102's colours, same-colour pairs within 55 went from 13 to 8,
+within 60 from 23 to 15, within 70 from 41 to 33. `RECOLOUR` in
+`build_data.py` holds the result: fifty of the seventy bulbs differ from
+Canva's. The spread is 17 red, 18 gold, 18 blue, 17 grey. Red is Canva's own,
+`#bd7055`.
+
+```bash
+~/.venvs/elkader-map/bin/python colour_spread.py . sources/map-canva-p2.pdf 47 90 /tmp/colours.json
+```
+
+47 is as far as the first rule goes on this lineup. Where the right-hand road
+runs beside the outer one, eleven businesses (9-12, 26-27 and 42-47) stand so
+close that at 47.5 there is no four-colouring left to find. It was 50 before
+those bulbs were there.
 
 The trace actually returns several hex values for four colours — `#ac685b`
 is the same red as `#ac6455` (and the 6 Nov 2026 export samples that red a few
-points lighter again, as `#bd7055`, `#bd745a` and `#c1795f`), `#bbbbbb` and `#cdcdcd` the same grey as
-`#c7c7c7`, none of them tellable apart on screen. `BULB_PALETTE` snaps them to
+points lighter again, as `#bd7055`, `#bd745a` and `#c1795f`, and the 7 Nov
+export as `#b67d68` and `#bb7c65`), `#bbbbbb`, `#cdcdcd` and `#a7a7a7` the
+same grey as `#c7c7c7`, none of them tellable apart on screen. `BULB_PALETTE` snaps them to
 the four real colours first, so "a different colour" means a visible one.
 
 **These are the page's colours and the page's alone.** The Canva file keeps
 the originals, and Ketaki has said not to change it to match — so a printed
 map and this one will differ, on purpose.
 
-Three checks run on every build and fail it rather than shipping something
+Four checks run on every build and fail it rather than shipping something
 wrong: `check_bulb_clearance()` for the first rule, `check_pairs_match()` for
-the second, `check_pinned()` for the third. The table was worked out against the artwork as it stands; if
+the second, `check_list_alternates()` for the list, `check_pinned()` for hers. The table was worked out against the artwork as it stands; if
 Canva moves a bulb the table goes stale, and a stale table is invisible
 otherwise.
 
@@ -729,6 +793,13 @@ way the sponsor credit sets it, straight on the photo with no background and
 a soft shadow so the white reads on the pale patches. It replaced the plain
 K8Ki mark on that card on 6 Nov 2026. The mark is rendered from
 `assets/k8ki-logo.svg`, the credit's own file, recoloured white.
+
+The photo is 3:2 and the card's logo box 301 x 150, so at first it stood 225
+wide with a margin either side. Ketaki asked for it bigger (7 Nov 2026): the
+build now crops it to 2:1 (`aspect`, with `crop_y` placing the window a little
+below the middle), and a rule in `style.css` for any `*-photo.` image lets it
+run the card's full width at 2:1 rather than inside the box -- 301 x 150 on a
+wide screen, 343 x 172 on a phone, where the box is wider than 2:1.
 
 ### The white background comes off
 
@@ -954,6 +1025,23 @@ Only the participant name and those links are taken. That sheet also carries
 contact names, phone numbers, emails and payment records, none of which may
 reach a published page.
 
+Since 7 Nov 2026 the source is the committee's live Google Sheet (its
+Participants tab), which Ketaki sent "for website links". Its Participant
+and Website columns, rows 2-62 -- the participants, not the list of
+prospects under them -- are copied by hand into
+`_build/sources/participant-websites.csv`, and nothing else from the sheet
+is copied anywhere.
+
+The live sheet has the one Website column, and most rows give only the
+website there -- so read alone it lost 30 Facebook pages and K8Ki's Instagram
+that the October `.xlsx` had, and Ketaki asked for them back. `read_links.py`
+reads both now, the live CSV first: the first sheet is the source for
+websites, and the older one adds every Facebook or Instagram page the first
+lacks (the same page written two ways, `profile.php?id=N` and `/p/Name-N/`,
+counts once), and a website only where the first gives none (Clayton County
+SXS Riders, Scoop-abowl, Elkader Chiropractic's Google listing). A bare domain ("riseltd.org") gets `https://`, and tracking added when a
+link was copied out of Facebook (`fbclid`, `utm_...`) comes off.
+
 Spreadsheet names don't always match the map's, so `ALIASES` covers the ones
 that differ by more than punctuation. Anything unmatched is printed rather
 than silently dropped.
@@ -977,8 +1065,16 @@ Put them there rather than in the spreadsheet: editing the sheet would mean
 writing to a file full of contact details and payment records in order to
 publish one URL.
 
+`HAND_LINKS` replaces a kind outright, so it also corrects the sheet. The live
+sheet gave Rapid Innovation & Yellow Iron cjmoyna.com and the CJ Moyna pair
+mobiletracksolutions.com alone. Yellow Iron Equipment has its own site,
+yellowironequip.com (its contact address is at cjmoyna.com, hence the mix-up),
+and Rapid Innovation a Facebook page whose website, rapidinnovation.us, is a
+parked domain -- so the pair links to those two, and the CJ Moyna pair has
+cjmoyna.com back beside the MTS site.
+
 ```bash
-python3 ../_build/read_links.py ../_build/sources/participants.xlsx
+python3 ../_build/read_links.py ../_build/sources/participant-websites.csv ../_build/sources/participants.xlsx
 ```
 
 They show as icons, not addresses: most are

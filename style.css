@@ -660,6 +660,18 @@ html, body {
   max-height: 150px;
   object-fit: contain;
 }
+/* A photograph rather than a logo -- K8Ki's card, spot 14, the one image
+   named *-photo. It runs the full width of the card at its own 2:1 (the build
+   crops it to that), not inside the 150px box: Ketaki asked for it bigger,
+   with no margin either side (7 Nov 2026). 301 x 150 on a wide screen, where
+   that is the box anyway; 343 x 172 on a phone. The aspect ratio keeps its
+   room before the picture arrives, as the fixed box does for the logos. */
+.hls .card .card-logo[src*="-photo."] {
+  height: auto;
+  max-height: none;
+  aspect-ratio: 2 / 1;
+  object-fit: cover;
+}
 
 /* Website, Facebook, Instagram. Icons rather than addresses: most of these
    are facebook.com/profile.php?id=615535759369, which tells a reader nothing
