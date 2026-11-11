@@ -103,6 +103,48 @@ and is not used.
 
 ## How it's put together
 
+### The 11 Nov 2026 changes (page only)
+
+The committee asked for a round of changes on 11 Nov 2026, and Ketaki had
+them made on the page without touching Canva ("i havent made these changes
+on canva. can you just do it here?"). So the Canva file still has the 7 Nov
+layout, and the page moves things off it:
+
+* Senior Life Solutions goes in between K8Ki (14) and Fidelity Bank, on the
+  curve, so it is spot 15 and Fidelity Bank to Alliant Energy are each one
+  higher than the artwork prints them (Fidelity 16, EXIT 17, ... Alliant
+  42). 43 on keep their numbers. Fidelity Bank and EXIT Realty step along
+  the road to make room, and K8Ki's name steps right, off the new bulb.
+* thINK Custom and Elkader Care Center swap places: thINK is 24 now,
+  Elkader Care Center 25.
+* Whoopsie Daisy (43) to Erickson Underground (48) are spread further apart
+  down the right-hand road, into the room Senior Life left: 29.5 apart where
+  they were 21, Erickson staying put.
+* At the entrance, the welcome shed and the KCTN mailbox go up the road to
+  where the arches stood, and the arches, bulb 1 and Schlee & Sommers' name
+  go down to where the mailbox stood. Bulb 1 stands just past the arches;
+  its name goes under the road, since Foundations Wealth Partners' name
+  fills the space above.
+* "Rapid & YellowIron" reads "Rapid Innovation & YellowIron" and "CJ Moyna,
+  ELC, MTS" reads "CJ Moyna, Earthmoving Legacy Center, MTS", both on three
+  lines growing upward off their bulbs. Pattison loses the "Sand", on the
+  map and on the card ("Pattison Company").
+* Floral Hall reads SPECIAL EVENTS / AT / **FLORAL HALL** on three lines,
+  the hall's name in bold (app.js, where the hall's lettering is drawn).
+
+How it is done: `RENUMBER` and `LAYOUT` in `../_build/build_data.py` renumber
+and move the bulbs, numerals and names read off the artwork, through
+`layout()`, which `colour_spread.py` reads through too. The drawing (arches,
+shed, mailbox) is moved in `assets/map.svg` itself by
+`../_build/move_entrance.py`, run once; it marks the file and refuses to run
+again. The renames are `RESTACK` rules. Bulb colours were worked out again
+for the new numbers and places (see "Bulb colours"); links and logos were
+regenerated, and match what they were, under the new numbers.
+
+If the Canva file is ever brought into line with these, the rules come out:
+`RENUMBER` and `LAYOUT` emptied, and `move_entrance.py` not run on the new
+trace.
+
 ### The 1-70 lineup (7 Nov 2026)
 
 Ketaki rearranged page 2 again on 6-7 Nov 2026: 1-14 kept their numbers, the
@@ -285,12 +327,12 @@ published map.
 
 ### Nine participants have two spots
 
-Peace Church has 6 and 7, EXIT Driftless Group 16 and 70, Alpine
-Communications 26 and 27, MercyOne 28 and 29, Brown's 32 and 33, St Joseph 59
-and 60, Pattison Sand Company 62 and 63, Rapid Innovation & Yellow Iron 65 and
-66, CJ Moyna 68 and 69 (the 7 Nov 2026 lineup: most names sit between their
-two numbers on the artwork; EXIT's two are far apart, one inside the loop and
-one by the EXIT sign). The two markers have
+Peace Church has 6 and 7, EXIT Driftless Group 17 and 70, Alpine
+Communications 27 and 28, MercyOne 29 and 30, Brown's 33 and 34, St Joseph 59
+and 60, Pattison Company 62 and 63, Rapid Innovation & Yellow Iron 65 and
+66, CJ Moyna 68 and 69 (the 7 Nov 2026 lineup as renumbered on 11 Nov: most
+names sit between their two numbers on the artwork; EXIT's two are far
+apart, one inside the loop and one by the EXIT sign). The two markers have
 different ids, so nothing in the data ties them together except the name —
 which is what `groupSpots()` in `app.js` groups them by.
 
@@ -309,11 +351,16 @@ actually is, and that does not change.
 
 ### One number on the page: 70 displays
 
-The count under the show logo reads **70 displays**: every spot with a
-business on it, so a business with two spots counts twice, and a spot still
-for sale is not counted, since there is no display there yet (there are none
-since the 7 Nov 2026 lineup; it read 66 while 53 and 54 were for sale). A
-search shows how many of them match, "4 of 70 displays".
+The search box says it: **Search 70 displays by name or number**, or just
+"Search 70 displays" where the box is too narrow for the rest (`fitPlaceholder()`
+in app.js measures it, leaving room for the box's clear button). The count is
+every spot with a business on it, so a business with two spots counts twice,
+and a spot still for sale is not counted, since there is no display there yet
+(there are none since the 7 Nov 2026 lineup; it read 66 while 53 and 54 were
+for sale). Until 8 Nov 2026 (v108) it was a line of its own under the show
+logo, "70 displays"; Ketaki asked for it in the search box instead. The line
+is still there for a screen reader (`#count`, hidden on screen), which hears
+how many a search matches, "4 of 70 displays".
 
 Until 6 Nov 2026 it counted participants instead -- a business with two spots
 once -- and read 50, then 58 for the new lineup; Ketaki asked for it to count
@@ -539,7 +586,8 @@ colour unless they are one participant's pair, so the list alternates as the
 map does.
 
 **Three colours are hers to name**: K8Ki Design Studio (14) gold, EXIT
-Driftless Group (16 and 70) blue, Pattison Sand Company (62 and 63) grey.
+Driftless Group (17 and 70; 16 and 70 until 11 Nov 2026) blue, Pattison
+Company (62 and 63) grey.
 `PINNED` holds them, and the clearance rule holds for them too. On 7 Nov 2026
 Ketaki let the rest go -- "rest can be whatever ... alternate them so same
 colors are not close" -- so her earlier picks (Fidelity gold, Pattison red,
@@ -682,9 +730,18 @@ map" any more; it would have had to break the floor to do it.
 
 ## Sponsor credit
 
-Bottom right of the map, to the left of the zoom buttons, linked to
-<https://www.studiok8ki.com/>. Set the way Ketaki set it in Canva — four
-centred lines on a white card:
+Bottom left of the map, on a white card with a soft shadow, the same as on
+a phone; the zoom buttons keep the bottom right. The card is 128px tall, as
+tall as the zoom column, so the two stand on one line across the foot of the
+map; the lock-up inside it is still 100px. It got the card on 8 Nov 2026
+(v109; until then it stood on the page with none) and moved to the bottom
+left the same day (v110; until then it stood just left of the zoom buttons,
+where a 1024x640 window put it over bulbs 5-8). Since bulb 1 moved down the
+road (11 Nov 2026) bottom left covers no bulb in any window from 900px wide
+up, nor on a phone; on a tablet held upright (768-820 wide) it sits over
+bulb 1 until the map is panned. The build stamp, on preview hosts only, moved to the
+top left to make room. Set the way Ketaki set it in Canva — four centred
+lines on a white card:
 
 ```
    Interactive Map
@@ -693,9 +750,26 @@ Designed & Sponsored by
     DESIGN STUDIO
 ```
 
-Both are children of `.corner`, a flex row that stands clear of the open list
-(`--list-w`), so the credit sits in the white band beside the map on a wide
-screen and over the map's empty bottom-right corner on a narrow one.
+Both are children of `.corner`, which takes no room of its own: each is
+placed on its own, the zoom column clear of the open list (`--list-w`) and
+the credit 16px in from the map's left edge.
+
+Tapping it opens K8Ki's own display, spot 14, the way picking it from the
+list does: the bulb lit, the map brought round to it, the card open. Until
+8 Nov 2026 (v104) it linked to <https://www.studiok8ki.com/>; Ketaki asked for
+the bulb instead, and the card it opens carries the website, Facebook and
+Instagram. Both copies (`.corner .credit` and the phone's `.credit-foot`) are
+`<button data-open="14">`, and app.js opens whichever spot that number names,
+so if K8Ki's spot is ever renumbered, change `data-open` in `index.html`.
+
+On a phone it is on the map as well as at the foot of the list (8 Nov 2026;
+until then it was only at the foot). It stands bottom left, small, on a
+white card, and rides up over a sheet the way the zoom buttons do on the
+right. Ketaki's choice (v107), after builds with it top left (v105) and
+bottom right beside the zoom buttons (v106, where it sat over bulbs 2-4 in
+the opening view). Bottom left covers no bulb, only the mailbox and sign
+labels. The credit is the list-foot size on a phone 812px tall or taller and shrinks
+with shorter screens, as the map does (`--k` in style.css).
 
 Its size is its height. It stood as tall as the zoom column (134px) until
 28 Oct 2026, when Ketaki asked for it 25% smaller: `.credit` is 100px tall
@@ -827,8 +901,8 @@ to-do, not an error.
 Three parts, and only the last one scrolls:
 
 * **the show's own logo**, centred
-* the display count under it
-* the search box
+* the search box, which carries the display count
+  ("Search 70 displays by name or number")
 * the list
 
 `.panel` is a flex column. The top and the head are `flex: none` and the list
@@ -1157,7 +1231,8 @@ doubt which build is being looked at.
 
 ## The build stamp
 
-Bottom left of the page, in small type: the version and the date it was built.
+Top left of the page, in small type: the version and the date it was built
+(bottom left until 8 Nov 2026, when the sponsor credit took that corner).
 
 It is there because this page caches hard, and a stale copy is pixel-identical
 to a fresh one — an afternoon went into chasing "blurry edges" that turned out

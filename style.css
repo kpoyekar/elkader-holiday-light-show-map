@@ -349,28 +349,29 @@ html, body {
   line-height: 1;
 }
 
-/* The bottom-right corner of the map: the sponsor credit, then the zoom
-   buttons to its right. Both belong to the map, so they stand clear of the
-   list rather than behind it. `--list-w` is how much of the stage the open
-   list covers, set by app.js whenever that changes; it is 0 when the list is
-   shut, and 0 on a phone, where the list covers the map entirely and there is
-   no strip of map left to put them on. */
-.corner {
+/* Two corners of the map: the zoom buttons bottom right, the sponsor credit
+   bottom left, on one bottom line (Ketaki, 8 Nov 2026, to match the phone;
+   until then the credit stood just left of the zoom buttons). Both belong to
+   the map, so the buttons stand clear of the list rather than behind it.
+   `--list-w` is how much of the stage the open list covers, set by app.js
+   whenever that changes; it is 0 when the list is shut, and 0 on a phone,
+   where the list covers the map entirely and there is no strip of map left
+   to put them on. The wrapper itself takes no room and no taps. */
+.corner { position: static; pointer-events: none; }
+.corner > * { pointer-events: auto; }
+.zoom,
+.corner .credit {
   position: absolute;
-  right: calc(var(--list-w, 0px) + 16px);
   bottom: 16px;
   z-index: 6;
-  display: flex;
-  flex-direction: row;
-  align-items: flex-end;       /* the credit sits on the buttons' bottom line */
-  gap: 12px;
-  pointer-events: none;
 }
-.corner > * { pointer-events: auto; }
+.zoom { right: calc(var(--list-w, 0px) + 16px); }
+.corner .credit { left: 16px; }
 
 /* The sponsor credit, laid out as Ketaki's own lock-up: two lines of plain
    text, the wordmark, then DESIGN STUDIO in bold, spaced out to the
-   wordmark's width. No card behind it. Its height is what sets its size:
+   wordmark's width. On the map it stands on a white card (below). Its
+   height is what sets its size:
    the four pieces are spread over it, and the wordmark's width is chosen so
    the proportions match the lock-up. It stood exactly as tall as the column
    of zoom buttons beside it (134px, top of + to bottom of fit) until 28 Oct
@@ -383,9 +384,13 @@ html, body {
   justify-content: space-between;
   height: 100px;
   padding: 0;
+  border: 0;                   /* a button since 8 Nov 2026: it opens spot 14 */
+  background: none;
+  cursor: pointer;
   color: var(--navy-ink);
   text-decoration: none;
   text-align: center;
+  font: inherit;
   font-family: var(--font);
   line-height: 1.15;
   -webkit-tap-highlight-color: transparent;
@@ -397,6 +402,19 @@ html, body {
 .credit-mark { display: block; width: 159px; height: auto; margin: 0; }
 .credit:hover .credit-l3 { text-decoration: underline; text-underline-offset: 4px; }
 .credit:focus-visible { outline: 2px solid var(--gold); outline-offset: 4px; }
+/* The white card, as on a phone (Ketaki, 8 Nov 2026; until then no card on a
+   wide screen). Only the credit on the map: the copy at the foot of the
+   phone's list sits on the list's own white. 128px tall with the padding,
+   the same as the zoom column, so across the map the card's top lines up
+   with the + and its foot with the fit button; the lock-up inside is the
+   same 100px as before. */
+.corner .credit {
+  height: 128px;
+  padding: 12px 16px 16px;
+  border-radius: 10px;
+  background: rgba(255,255,255,.94);
+  box-shadow: 0 2px 10px rgba(8,32,47,.22);
+}
 
 .zoom {
   display: flex;
@@ -407,13 +425,14 @@ html, body {
 .zoom .btn { box-shadow: 0 2px 10px rgba(8,32,47,.22); }
 
 /* ---------- build stamp ---------- */
-/* Bottom left, the one corner nothing else uses. Quiet enough to ignore while
-   you read the map, legible enough to check before you report a bug against
-   the wrong version. */
+/* Top left, the one corner nothing else uses (bottom left until the credit
+   moved there, 8 Nov 2026). Quiet enough to ignore while you read the map,
+   legible enough to check before you report a bug against the wrong
+   version. */
 .build {
   position: absolute;
   left: 14px;
-  bottom: 14px;
+  top: 14px;
   z-index: 6;
   margin: 0;
   font-size: 10.5px;
@@ -466,12 +485,16 @@ html, body {
   max-width: 100%;
 }
 
-/* How many displays, under the logo. */
+/* How many displays a search is showing: read out by a screen reader, not
+   shown. The number is in the search box instead (8 Nov 2026). */
 .panel-count {
-  margin: 0;
-  font-size: 11.5px;
-  color: var(--muted);
-  text-align: center;
+  position: absolute;
+  width: 1px; height: 1px;
+  margin: -1px; padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
 }
 
 .panel-head {
@@ -505,6 +528,7 @@ html, body {
   outline: none;
 }
 .search input::placeholder { color: var(--muted); }
+.search input { text-overflow: ellipsis; }   /* a hint that runs long ends in ... */
 .search input::-webkit-search-cancel-button { opacity: .5; }
 
 .list {
@@ -953,9 +977,11 @@ html, body {
   .list .n { height: 46px; align-self: flex-start; }
   .list .nm { font-size: 14px; }
 
-  /* The credit, small, at the foot of the list; the one in the corner of the
-     map is put away, since that corner is where the bar is. */
-  .corner .credit { display: none; }
+  /* The credit, small, in two places: on the map beside the zoom buttons,
+     as on a wide screen, and at the foot of the list. Until 8 Nov 2026 it
+     was only at the foot; Ketaki asked for it on the map as well. On the map
+     it stands on a white card, since it sits over the artwork there rather
+     than in a white band beside it. */
   .credit-foot {
     display: flex;
     flex: none;
@@ -968,13 +994,36 @@ html, body {
   .credit-foot .credit-l2 { font-size: 8.5px; }
   .credit-foot .credit-mark { width: 97px; margin-top: 3px; }
   .credit-foot .credit-l3 { font-size: 8.5px; margin-top: 1px; letter-spacing: .24em; }
+  /* On the map it is the list-foot size on a phone 812px tall or taller, and
+     shrinks with a shorter screen the way the map does (the map is always
+     the full height), so it covers no more of the map there than on a big
+     phone. --k is 1px at 812px tall. */
+  .corner .credit {
+    --k: calc(100vh / 812);
+    height: auto;
+    gap: min(2px, calc(var(--k) * 2));
+    padding: min(7px, calc(var(--k) * 7)) min(10px, calc(var(--k) * 10))
+             min(8px, calc(var(--k) * 8));
+  }
+  .corner .credit-l1,
+  .corner .credit-l2,
+  .corner .credit-l3 { font-size: min(8.5px, calc(var(--k) * 8.5)); }
+  .corner .credit-mark { width: min(97px, calc(var(--k) * 97)); margin-top: min(3px, calc(var(--k) * 3)); }
+  .corner .credit-l3 { margin-top: min(1px, var(--k)); letter-spacing: .24em; }
 
-  .corner {
-    right: 12px;
+  /* As on a wide screen, the zoom buttons bottom right and the credit bottom
+     left (Ketaki, 8 Nov 2026), here above the bar and riding up above a sheet
+     when one is up. In the opening view the bottom left has no bulb under
+     it, only the mailbox and sign labels; bottom right, beside the zoom
+     buttons, it sat on bulbs 2-4. (It also stood top left for a build.) */
+  .zoom,
+  .corner .credit {
     bottom: calc(var(--tab-h) + 16px + var(--sheet-h, 0px));
     transition: bottom .3s ease;
   }
-  .build { bottom: calc(var(--tab-h) + 10px); }
+  .zoom { right: 12px; }
+  .corner .credit { left: 12px; }
+  .build { top: 10px; }
 
   /* The card as a sheet: square-cornered, sitting on the bar, the map still
      showing above it. app.js has moved it out of the list to be a child of
@@ -1016,7 +1065,11 @@ html, body {
     -webkit-tap-highlight-color: transparent;
   }
   .card-handle span { display: block; width: 40px; height: 5px; border-radius: 3px; background: #cfd6dc; }
-  .hls > .card .card-x { top: 7px; right: 10px; }
+  /* Over the handle, which runs the full width of the sheet's top edge: until
+     8 Nov 2026 the handle lay over the top half of the x, so a tap there
+     pulled the card down to its name instead of closing it. A 40px target
+     now, centred where the 30px one was. */
+  .hls > .card .card-x { top: 2px; right: 5px; width: 40px; height: 40px; z-index: 2; }
 
   /* The events page as a sheet: taller than a display card, since it is a
      page of dates, with the handle pulling it down to the title. app.js has

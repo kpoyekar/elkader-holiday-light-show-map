@@ -131,6 +131,32 @@
     return n + (n === 1 ? ' display' : ' displays');
   }
 
+  /* The count lives in the search box: "Search 70 displays by name or
+     number" (Ketaki, 8 Nov 2026; it was a line of its own under the logo).
+     Where the box is too narrow for all of it the hint is dropped, leaving
+     "Search 70 displays". Measured against the box's own font, and again
+     whenever the box changes width. */
+  var measureCtx = null;
+  function fitPlaceholder() {
+    var full = 'Search ' + tally(DISPLAYS) + ' by name or number';
+    var short = 'Search ' + tally(DISPLAYS);
+    var pick = full;
+    var w = qEl.clientWidth;
+    if (w) {
+      try {
+        measureCtx = measureCtx || document.createElement('canvas').getContext('2d');
+        var cs = getComputedStyle(qEl);
+        measureCtx.font = cs.fontWeight + ' ' + cs.fontSize + ' ' + cs.fontFamily;
+        var pad = (parseFloat(cs.paddingLeft) || 0) + (parseFloat(cs.paddingRight) || 0);
+        /* 22px spare: a search box keeps room on its right for the clear
+           button even while empty, and clips the hint short of it. */
+        if (measureCtx.measureText(full).width > w - pad - 22) pick = short;
+      } catch (e) {}
+    }
+    qEl.placeholder = pick;
+    qEl.setAttribute('aria-label', full);
+  }
+
   /* ---------- transform ---------- */
 
   function clamp(v, lo, hi) { return v < lo ? lo : v > hi ? hi : v; }
@@ -610,17 +636,20 @@
     var frag = document.createDocumentFragment();
     DATA.labels.forEach(function (l) {
       /* The hall is labelled with what happens in it rather than just its
-         name, since it is the one building you can tap: two centred lines
-         in the building's own lettering, where Canva had the one. */
+         name, since it is the one building you can tap: three centred lines
+         in the building's own lettering, where Canva had the one, with the
+         hall's own name in bold (Ketaki, 11 Nov 2026; until then two lines,
+         SPECIAL EVENTS / AT FLORAL HALL, all regular). */
       if (l.t === 'FLORAL HALL') {
         var cx = FLORAL_HALL.x + FLORAL_HALL.w / 2;
-        ['SPECIAL EVENTS', 'AT FLORAL HALL'].forEach(function (line, k) {
+        ['SPECIAL EVENTS', 'AT', 'FLORAL HALL'].forEach(function (line, k) {
           var tt = document.createElementNS(NS, 'text');
           tt.setAttribute('x', cx.toFixed(2));
-          tt.setAttribute('y', (l.y + (k ? 4.5 : -4.5)).toFixed(2));
+          tt.setAttribute('y', (l.y + (k - 1) * 8).toFixed(2));
           tt.setAttribute('font-size', l.s);
           tt.setAttribute('fill', l.c);
           tt.setAttribute('text-anchor', 'middle');
+          if (k === 2) tt.setAttribute('font-weight', '700');
           tt.setAttribute('data-hall', '1');
           tt.textContent = line;
           frag.appendChild(tt);
@@ -1315,10 +1344,10 @@
       p.textContent = 'Nothing matches “' + term + '”.';
       listEl.appendChild(p);
     }
-    /* The same count as the header, so the two never disagree. The rows with
-       no name yet are shown but not counted -- there is nobody to count. */
-    countEl.textContent = named === DISPLAYS
-      ? tally(DISPLAYS)
+    /* For a screen reader: how many a search is showing. Silent until
+       there is a search, since the box already says how many there are.
+       The rows with no name yet are shown but not counted. */
+    countEl.textContent = !term ? ''
       : named + ' of ' + tally(DISPLAYS);
   }
 
@@ -1462,17 +1491,33 @@
   document.getElementById('zOut').addEventListener('click', function () { zoomBy(1 / 1.4); });
   document.getElementById('zFit').addEventListener('click', function () { home(); closeCard(); });
 
+  /* The sponsor credit opens K8Ki's own display rather than the studio's
+     website (Ketaki, 8 Nov 2026): the card it opens has the website and the
+     social links. Which spot is the button's data-open number in index.html,
+     so a renumbering changes it there. */
+  var credits = document.querySelectorAll('.credit[data-open]');
+  for (var ci = 0; ci < credits.length; ci++) {
+    credits[ci].addEventListener('click', function () {
+      var want = +this.getAttribute('data-open');
+      for (var k = 0; k < DATA.spots.length; k++) {
+        if ((DATA.spots[k].nums || []).indexOf(want) !== -1) { select(k, true); return; }
+      }
+    });
+  }
+
   /* ---------- boot ---------- */
 
   var img = document.getElementById('basemap');
   var untouched = true;
   function boot() {
     renderList('');
+    fitPlaceholder();
     /* After the map's own typeface has arrived, not before: the widths this
        measures are the widths it is drawn at, and the fallback font's are
        not the same. */
     if (document.fonts && document.fonts.ready) {
       document.fonts.ready.then(declutter);
+      document.fonts.ready.then(fitPlaceholder);   // measured in the real font
     } else {
       declutter();
     }
@@ -1498,6 +1543,7 @@
     clearTimeout(rt);
     rt = setTimeout(function () {
       remeasureList();
+      fitPlaceholder();
       sheetInset();
       if (untouched) home();          // still the opening view: re-frame it
       else { measure(); constrain(); apply(); }
@@ -1512,6 +1558,7 @@
       togglePanel(!isPhone() || panel.classList.contains('open'), true);
       sheetInset();
       remeasureList();
+      fitPlaceholder();
       if (untouched) home();
       else { measure(); constrain(); apply(); }
     };
