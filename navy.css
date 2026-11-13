@@ -1,0 +1,108 @@
+/* The map on a dark blue ground (Ketaki, 13 Nov 2026: "make the navy
+   version live", after a mock of 3 Nov). Layered over style.css, which is
+   still the light map's sheet: this turns the page around the artwork and
+   the lettering, the artwork itself is recoloured in assets/map.svg
+   (_build/navy.py) and the show logo is the reversed one. The map commits
+   to the one dark look whatever the viewer's own theme, so every colour is
+   set here outright. Take this file out of index.html (and rebuild
+   map.svg and the show logo) to go back to the light map. */
+
+:root {
+  color-scheme: dark;
+  --ground:    #0d2a44;   /* the show's navy, now the ground the park sits on */
+  --deep:      #091f33;   /* the list panel and the phone bar, a step darker  */
+  --surface:   #12375a;   /* cards and the events page                         */
+  --text:      #eef3f8;
+  --navy-ink:  #eef3f8;   /* the live sheet's "ink" token now means light text */
+  --muted:     #9db5c9;
+  --edge:      rgba(255,255,255,.13);
+  --ink:       #eef3f8;
+  --row-hover: rgba(255,255,255,.07);
+  --shadow:    0 6px 22px rgba(0,0,0,.35);
+}
+
+html, body, .hls, .stage, .canvas { background: var(--ground); }
+html, body { color: var(--text); }
+
+/* ---------- lettering on the map ---------- */
+.textlayer text { fill: var(--text); }
+/* The numbers sit on the bulbs' coloured glass and the hall's two lines on
+   its light blue roof, so both stay dark (dark.js marks the numbers). */
+.textlayer text.num,
+.textlayer text[data-hall] { fill: #0d2a44; }
+.textlayer .free-tag { fill: var(--gold); }
+
+/* ---------- the credit and the zoom buttons ---------- */
+.credit { color: var(--text); }
+/* On the map the credit stands on a card (since 8 Nov 2026): here the navy
+   card colour rather than white, so the corner does not glare and the light
+   lettering reads. */
+.corner .credit {
+  background: rgba(18, 55, 90, .94);
+  box-shadow: 0 2px 10px rgba(0,0,0,.35);
+}
+.btn {
+  background: #1d4a72;
+  border-color: rgba(255,255,255,.3);
+}
+.btn:hover { background: #275a87; }
+.zoom .btn { box-shadow: 0 2px 10px rgba(0,0,0,.35); }
+
+/* ---------- the list panel ---------- */
+.panel {
+  background: var(--deep);
+  color: var(--text);
+  border-left-color: var(--edge);
+  box-shadow: -14px 0 34px rgba(0,0,0,.35);
+}
+.search { background: rgba(255,255,255,.07); }
+.search input { color: var(--text); }
+.chip-num { fill: #0d2a44; }
+
+/* ---------- the card ---------- */
+.card {
+  --ink: var(--text);
+  --ink-soft: #a9c0d2;
+  --ink-chip: rgba(255,255,255,.07);
+  --ink-edge: rgba(255,255,255,.2);
+  background: var(--surface);
+  box-shadow: 0 -10px 22px rgba(0,0,0,.25);
+}
+.card-n { color: #0d2a44; }
+/* Most sponsors' logos are dark lettering on a clear background, made for
+   white; a light plate keeps them readable on the navy card. Square corners,
+   like the card. */
+.card-logo {
+  box-sizing: border-box;
+  max-height: 170px;
+  padding: 10px;
+  background: #f4f7fa;
+}
+.card-link:hover { color: #0d2a44; }
+.card-book, .card-book:hover { background: var(--gold); color: #0d2a44; }
+.card-handle span { background: rgba(255,255,255,.35); }
+.hls > .card { box-shadow: 0 -6px 30px rgba(0,0,0,.45); }
+
+/* ---------- Floral Hall's events page ---------- */
+.events {
+  --ink: var(--text);
+  --ink-soft: #a9c0d2;
+  background: var(--surface);
+}
+.ev-list li { border-top-color: rgba(255,255,255,.12); }
+.ev-tile { background: #0d2a44; border-color: rgba(255,255,255,.18); }
+.ev-month { background: var(--gold); color: #0d2a44; }
+.ev-day, .ev-title { color: var(--text); }
+.events-body a:hover { color: var(--gold); }
+.events-fb, .events-fb:hover { background: var(--gold); color: #0d2a44; }
+.hls > .events { box-shadow: 0 -6px 30px rgba(0,0,0,.45); }
+.hls > .events .events-handle span { background: rgba(255,255,255,.35); }
+
+/* ---------- the phone bar ---------- */
+.tabs {
+  background: var(--deep);
+  border-top-color: var(--edge);
+  box-shadow: 0 -4px 16px rgba(0,0,0,.35);
+}
+.tab { background: var(--deep); color: var(--text); }
+.tab.is-active { background: var(--gold); color: #0d2a44; }

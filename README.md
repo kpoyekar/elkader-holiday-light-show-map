@@ -95,13 +95,17 @@ hosting instead of GitHub Pages. Nothing outside it is needed at runtime.
 
 ```
 index.html      the page
-style.css       all styling
+style.css       all styling (the light map's sheet)
+navy.css        the navy look, over style.css (since 13 Nov 2026)
+navy.js         keeps the bulb numbers navy on the glass
 app.js          pan, zoom, markers, search, text layer
 data.js         the 68 display spots and all 216 labels — GENERATED, see below
 assets/
-  map.svg       the artwork — vector throughout, no lettering, no raster
+  map.svg       the artwork — vector throughout, no lettering, no raster;
+                recoloured navy by _build/navy.py
   k8ki-logo.svg sponsor wordmark (the brand yellow #ebb248, from the rebrand logo kit)
-  show-logo.webp  the show's own logo, at the top of the list — GENERATED
+  show-logo.webp  the show's own logo, at the top of the list, reversed
+                  for the navy ground — GENERATED (copied from _build/navy/)
   logos/        53 participant logos, shown on the detail card — GENERATED
                 (59 of the 66 named spots show one)
   fonts/
@@ -163,6 +167,37 @@ one label, and no QR code, logo or internal notes. Page 1 is the older layout
 and is not used.
 
 ## How it's put together
+
+### On a navy ground (13 Nov 2026)
+
+The map is dark blue since v114. Ketaki saw a mock on 3 Nov ("where the
+background is dark blue and make other elements have contrast"), held it on
+6 Nov, had it rebuilt on the current map on 13 Nov and then said "make the
+navy version live". It is three layers over the light map, each of which can
+come off again:
+
+* `navy.css`, after `style.css`: the page ground #0d2a44, the list panel a
+  step darker (#091f33), cards and the events page #12375a, light lettering,
+  gold (#f3c05b) for the active tab, the Book and Facebook buttons and the
+  month on the event tiles, a light plate behind sponsor logos (most are dark
+  lettering made for white), and the credit's card in the map corner in the
+  card navy rather than white. The bulb numbers and the hall's three lines
+  stay navy, on the bulbs' glass and the hall's light blue roof.
+* `navy.js`, after `app.js`: marks the bulb numbers (`text.num`), which are
+  plain text in the lettering layer like the names, so `navy.css` can keep
+  them dark.
+* the artwork, recoloured in place by `_build/navy.py` (buildings and High
+  Street #1b4163, the road #5d7b97 so the candy dashes still read, the line
+  art pale #d6e0ea, the ground navy, a white card behind the EXIT sign's
+  cut-out letters). Run it again after any rebuild of `map.svg`; it marks
+  the file and refuses to run twice.
+* the show logo, reversed (navy lettering to white): `extract_logos.py`
+  copies `_build/navy/show-logo-navy.webp` in, so a logo rebuild keeps it.
+
+`style.css` still describes the light map throughout; read its colours as
+what `navy.css` turns. To go back: drop the two lines from `index.html`,
+rebuild `map.svg` without `navy.py`, and let `extract_logos.py` save the
+plain show logo again.
 
 ### The 11 Nov 2026 changes (page only)
 
