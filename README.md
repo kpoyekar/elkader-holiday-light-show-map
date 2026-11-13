@@ -94,6 +94,22 @@ Then run the build scripts with `~/.venvs/elkader-map/bin/python` in place of
 link scripts import `build_data` for its name table alone, and that import no
 longer drags the PDF toolchain in with it.
 
+## Google Analytics
+
+Added 13 Nov 2026 (v112). `analytics.js` loads Google Analytics into the map
+page: property "Holiday Light Show Map" in the Main Street Elkader account,
+measurement ID `G-Y063ZQXBYL`. Because the GoDaddy site shows this page in an
+iframe, every view there is counted here, in Ketaki's property; the City's own
+analytics are not involved.
+
+It keeps out of `app.js` entirely: it listens for clicks and reads the card
+after `app.js` has filled it in. Events: `bulb_tap`, `list_pick`,
+`display_view` (any card opened), `sponsor_link`, `map_search`,
+`events_open`, plus the usual `page_view` with `embedded` yes/no. Display
+events carry `display_name` and `display_number`. If the card's ids
+(`card`, `cardName`, `cardN`, `markers`, `list`, `q`) are ever renamed,
+change them in `analytics.js` too.
+
 ## Source
 
 Everything is built from **page 2** of the Canva file "Holiday Light Show MAP
