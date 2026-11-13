@@ -73,11 +73,17 @@ in a 1728x941 window, where the map came out 1728x941. GoDaddy reloads the
 section's frame once after the page loads, which is harmless here, since the
 script is part of the section and runs again.
 
-The section is navy too, since 13 Nov 2026, to go with the navy map: the
-same script sets its background to #0d2a44, the heading to #eef3f8 and the
-short rule under the heading to a faint light line. GoDaddy's own section
-background setting only offers the theme's colours, and navy is not one of
-them; changing the theme would recolour the whole site. If GoDaddy ever stops running scripts in HTML sections the
+The section is just the map since 13 Nov 2026 (map v116): navy, with no
+heading and no space above or below. The heading "Try out our NEW
+interactive map!" is drawn on the map itself now, in gold (see "The title
+is on the map"), so the section's Title field is empty, and the script sets
+the section's background to #0d2a44 (GoDaddy's own background setting only
+offers the theme's colours, and navy is not one of them), hides any heading,
+takes out the section's 56px padding top and bottom, and hides the two
+3.5px strips GoDaddy puts before and after every section (they are
+::before/::after, so it adds one style rule for a section it marks
+`data-hls-map`). Checked live: in a 1728x941 window the section is the map,
+1728x941, with nothing above or below it. If GoDaddy ever stops running scripts in HTML sections the
 map simply goes back to the column width. It sits above the "Reserve your spot today!" section,
 since 28 Oct 2026. Pushing to GitHub updates the embedded map on its own; the
 GoDaddy page itself never needs touching again for a new build.
