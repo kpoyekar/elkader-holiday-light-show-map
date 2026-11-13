@@ -71,7 +71,13 @@ published from the GoDaddy editor on 13 Nov 2026 and checked on the live
 page at 1440 wide. The window-height part went in the same day: checked live
 in a 1728x941 window, where the map came out 1728x941. GoDaddy reloads the
 section's frame once after the page loads, which is harmless here, since the
-script is part of the section and runs again. If GoDaddy ever stops running scripts in HTML sections the
+script is part of the section and runs again.
+
+The section is navy too, since 13 Nov 2026, to go with the navy map: the
+same script sets its background to #0d2a44, the heading to #eef3f8 and the
+short rule under the heading to a faint light line. GoDaddy's own section
+background setting only offers the theme's colours, and navy is not one of
+them; changing the theme would recolour the whole site. If GoDaddy ever stops running scripts in HTML sections the
 map simply goes back to the column width. It sits above the "Reserve your spot today!" section,
 since 28 Oct 2026. Pushing to GitHub updates the embedded map on its own; the
 GoDaddy page itself never needs touching again for a new build.
@@ -826,18 +832,16 @@ map" any more; it would have had to break the floor to do it.
 
 ## Sponsor credit
 
-Bottom left of the map, on a white card with a soft shadow, the same as on
-a phone; the zoom buttons keep the bottom right. The card is 128px tall, as
-tall as the zoom column, so the two stand on one line across the foot of the
-map; the lock-up inside it is still 100px. It got the card on 8 Nov 2026
-(v109; until then it stood on the page with none) and moved to the bottom
-left the same day (v110; until then it stood just left of the zoom buttons,
-where a 1024x640 window put it over bulbs 5-8). Since bulb 1 moved down the
-road (11 Nov 2026) bottom left covers no bulb in any window from 900px wide
-up, nor on a phone; on a tablet held upright (768-820 wide) it sits over
-bulb 1 until the map is panned. The build stamp, on preview hosts only, moved to the
-top left to make room. Set the way Ketaki set it in Canva — four centred
-lines on a white card:
+On a computer: bottom right of the map, just left of the zoom buttons, on
+one bottom line with them, with no card behind it -- light lettering and the
+gold wordmark straight on the navy (13 Nov 2026, v115). Before that it stood
+bottom left on a card (v109-v114: white, then navy once the map went navy),
+and beside the buttons with no card before v109. On the navy ground nothing
+needs the card. It covers no bulb in any window 1152px wide or more; in a
+1024x640 window it touches the edge of bulb 6, and on an upright tablet
+(768 wide) its lettering lies over bulbs 2-4 until the map is panned.
+
+Set the way Ketaki set it in Canva, as four centred lines:
 
 ```
    Interactive Map
@@ -846,9 +850,9 @@ Designed & Sponsored by
     DESIGN STUDIO
 ```
 
-Both are children of `.corner`, which takes no room of its own: each is
-placed on its own, the zoom column clear of the open list (`--list-w`) and
-the credit 16px in from the map's left edge.
+Both are children of `.corner`, a flex row that stands clear of the open
+list (`--list-w`). On a phone `.corner` takes no room of its own and each is
+placed apart: the zoom column bottom right, the credit bottom left.
 
 Tapping it opens K8Ki's own display, spot 14, the way picking it from the
 list does: the bulb lit, the map brought round to it, the card open. Until

@@ -34,12 +34,15 @@ html, body { color: var(--text); }
 
 /* ---------- the credit and the zoom buttons ---------- */
 .credit { color: var(--text); }
-/* On the map the credit stands on a card (since 8 Nov 2026): here the navy
-   card colour rather than white, so the corner does not glare and the light
-   lettering reads. */
-.corner .credit {
-  background: rgba(18, 55, 90, .94);
-  box-shadow: 0 2px 10px rgba(0,0,0,.35);
+/* On a phone's map the credit stands on a card: here the navy card colour
+   rather than white, so the corner does not glare and the light lettering
+   reads. On a computer it has no card at all (13 Nov 2026), straight on
+   the navy beside the zoom buttons. */
+@media (max-width: 660px) {
+  .corner .credit {
+    background: rgba(18, 55, 90, .94);
+    box-shadow: 0 2px 10px rgba(0,0,0,.35);
+  }
 }
 .btn {
   background: #1d4a72;

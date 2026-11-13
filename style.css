@@ -356,29 +356,31 @@ html, body {
   line-height: 1;
 }
 
-/* Two corners of the map: the zoom buttons bottom right, the sponsor credit
-   bottom left, on one bottom line (Ketaki, 8 Nov 2026, to match the phone;
-   until then the credit stood just left of the zoom buttons). Both belong to
-   the map, so the buttons stand clear of the list rather than behind it.
-   `--list-w` is how much of the stage the open list covers, set by app.js
-   whenever that changes; it is 0 when the list is shut, and 0 on a phone,
-   where the list covers the map entirely and there is no strip of map left
-   to put them on. The wrapper itself takes no room and no taps. */
-.corner { position: static; pointer-events: none; }
-.corner > * { pointer-events: auto; }
-.zoom,
-.corner .credit {
+/* The bottom-right corner of the map, on a computer: the sponsor credit, then
+   the zoom buttons to its right, on one bottom line, the credit on no card
+   (Ketaki, 13 Nov 2026: beside the zoom controls, "without background", now
+   the map is navy). From 8 to 13 Nov it stood bottom left on a card, as it
+   still does on a phone (below). Both belong to the map, so they stand clear
+   of the list rather than behind it. `--list-w` is how much of the stage the
+   open list covers, set by app.js whenever that changes; it is 0 when the
+   list is shut, and 0 on a phone, where the list covers the map entirely. */
+.corner {
   position: absolute;
+  right: calc(var(--list-w, 0px) + 16px);
   bottom: 16px;
   z-index: 6;
+  display: flex;
+  flex-direction: row;
+  align-items: flex-end;       /* the credit sits on the buttons' bottom line */
+  gap: 12px;
+  pointer-events: none;
 }
-.zoom { right: calc(var(--list-w, 0px) + 16px); }
-.corner .credit { left: 16px; }
+.corner > * { pointer-events: auto; }
 
 /* The sponsor credit, laid out as Ketaki's own lock-up: two lines of plain
    text, the wordmark, then DESIGN STUDIO in bold, spaced out to the
-   wordmark's width. On the map it stands on a white card (below). Its
-   height is what sets its size:
+   wordmark's width. On a phone's map it stands on a card (see the phone
+   rules). Its height is what sets its size:
    the four pieces are spread over it, and the wordmark's width is chosen so
    the proportions match the lock-up. It stood exactly as tall as the column
    of zoom buttons beside it (134px, top of + to bottom of fit) until 28 Oct
@@ -409,19 +411,6 @@ html, body {
 .credit-mark { display: block; width: 159px; height: auto; margin: 0; }
 .credit:hover .credit-l3 { text-decoration: underline; text-underline-offset: 4px; }
 .credit:focus-visible { outline: 2px solid var(--gold); outline-offset: 4px; }
-/* The white card, as on a phone (Ketaki, 8 Nov 2026; until then no card on a
-   wide screen). Only the credit on the map: the copy at the foot of the
-   phone's list sits on the list's own white. 128px tall with the padding,
-   the same as the zoom column, so across the map the card's top lines up
-   with the + and its foot with the fit button; the lock-up inside is the
-   same 100px as before. */
-.corner .credit {
-  height: 128px;
-  padding: 12px 16px 16px;
-  border-radius: 10px;
-  background: rgba(255,255,255,.94);
-  box-shadow: 0 2px 10px rgba(8,32,47,.22);
-}
 
 .zoom {
   display: flex;
@@ -1011,6 +1000,9 @@ html, body {
     gap: min(2px, calc(var(--k) * 2));
     padding: min(7px, calc(var(--k) * 7)) min(10px, calc(var(--k) * 10))
              min(8px, calc(var(--k) * 8));
+    border-radius: 10px;
+    background: rgba(255,255,255,.94);
+    box-shadow: 0 2px 10px rgba(8,32,47,.22);
   }
   .corner .credit-l1,
   .corner .credit-l2,
@@ -1018,13 +1010,17 @@ html, body {
   .corner .credit-mark { width: min(97px, calc(var(--k) * 97)); margin-top: min(3px, calc(var(--k) * 3)); }
   .corner .credit-l3 { margin-top: min(1px, var(--k)); letter-spacing: .24em; }
 
-  /* As on a wide screen, the zoom buttons bottom right and the credit bottom
-     left (Ketaki, 8 Nov 2026), here above the bar and riding up above a sheet
-     when one is up. In the opening view the bottom left has no bulb under
-     it, only the mailbox and sign labels; bottom right, beside the zoom
-     buttons, it sat on bulbs 2-4. (It also stood top left for a build.) */
+  /* The corner splits on a phone: the zoom buttons bottom right, the credit
+     bottom left on its card (Ketaki, 8 Nov 2026), both above the bar and
+     riding up above a sheet when one is up. In the opening view the bottom
+     left has no bulb under it, only the mailbox and sign labels; bottom
+     right, beside the zoom buttons, it sat on bulbs 2-4. (It also stood top
+     left for a build.) */
+  .corner { position: static; display: block; }
   .zoom,
   .corner .credit {
+    position: absolute;
+    z-index: 6;
     bottom: calc(var(--tab-h) + 16px + var(--sheet-h, 0px));
     transition: bottom .3s ease;
   }
