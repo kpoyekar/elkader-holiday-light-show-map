@@ -174,6 +174,30 @@ and is not used.
 
 ## How it's put together
 
+### The title is on the map (13 Nov 2026)
+
+"Try out our NEW interactive map!" was the City page's heading over the map.
+Ketaki moved it onto the map itself, "above CJ Moyna, Rapid Innovation
+displays", so the City page can show the map edge to edge with nothing
+above it. It is drawn in app.js (`MAP_TITLE`, `layoutTitle()`), in the
+lettering layer like every label, so it pans and scales with the map, and
+`declutter()` leaves it where it is:
+
+* on a computer, one line centred at page x 506 over the open ground above
+  the top road, over CJ Moyna and Rapid Innovation
+* on a phone, two lines ("Try out our NEW" / "interactive map!") centred on
+  the middle of the crop -- the map opens there a screen tall and runs off
+  both sides, so one line over CJ Moyna would start on screen and end off it
+
+It is set in the City site's heading face, Playfair Display Regular,
+self-hosted as `assets/fonts/map-title-serif.woff2`: a 2.7 KB subset holding
+only the letters of the title. A subset is a Modified Version under the
+font's licence (`assets/fonts/map-title-serif-OFL.txt`) and "Playfair
+Display" is a Reserved Font Name, so it goes by "Elkader Map Title". Change
+the wording and the font must be cut again for any new letters (fontTools:
+instance the variable font at wght 400, subset to the new text, rename,
+save as woff2).
+
 ### On a navy ground (13 Nov 2026)
 
 The map is dark blue since v114. Ketaki saw a mock on 3 Nov ("where the

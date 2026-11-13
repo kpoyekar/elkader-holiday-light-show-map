@@ -31,6 +31,9 @@ html, body { color: var(--text); }
 .textlayer text.num,
 .textlayer text[data-hall] { fill: #0d2a44; }
 .textlayer .free-tag { fill: var(--gold); }
+/* The map's title, in the show's gold (Ketaki, 13 Nov 2026: "make that
+   title text yellow"). */
+.textlayer text.map-title { fill: var(--gold); }
 
 /* ---------- the credit and the zoom buttons ---------- */
 .credit { color: var(--text); }

@@ -623,6 +623,38 @@
     dashes(2.4, 6, 20, 10, '#ffffff', 1);    // white, in the slots between the red
   })();
 
+  /* ---------- the map's title ---------- */
+
+  /* "Try out our NEW interactive map!", drawn on the map (drawText, below).
+     Page units. On a wide screen one line, centred over CJ Moyna and Rapid
+     Innovation; on a phone two lines centred on the middle of the crop,
+     which is the middle of what a phone shows when the map opens. */
+  var MAP_TITLE = {
+    lines: ['Try out our NEW', 'interactive map!'],
+    s: 17,
+    wide:  { x: 506, y: 58 },
+    phone: { x: CROP.x + CROP.w / 2, y: 40, gap: 19 }
+  };
+  var titleEl = null;
+
+  function layoutTitle() {
+    if (!titleEl) return;
+    var spans = titleEl.querySelectorAll('tspan');
+    var at = isPhone() ? MAP_TITLE.phone : MAP_TITLE.wide;
+    titleEl.setAttribute('x', at.x);
+    titleEl.setAttribute('y', at.y);
+    if (isPhone()) {
+      spans[0].textContent = MAP_TITLE.lines[0];
+      spans[1].setAttribute('x', at.x);
+      spans[1].setAttribute('dy', at.gap);
+    } else {
+      // one line: the second part runs on after a space
+      spans[0].textContent = MAP_TITLE.lines[0] + ' ';
+      spans[1].removeAttribute('x');
+      spans[1].removeAttribute('dy');
+    }
+  }
+
   /* ---------- lettering ---------- */
 
   /* The map image carries no text at all — clean_map.py strips it out — so
@@ -676,6 +708,32 @@
       t.textContent = l.t;
       frag.appendChild(t);
     });
+
+    /* The title, on the map itself (Ketaki, 13 Nov 2026): it was the
+       heading over the map on the City's page, which now shows the map edge
+       to edge with nothing above it. Set in the City site's heading face
+       (Playfair Display, as assets/fonts/map-title-serif.woff2), centred on
+       the open ground above the top road, over CJ Moyna and Rapid
+       Innovation. Page units, like every label; it moves and scales with
+       the map. */
+    /* On a phone the map opens a screen tall and runs off both sides,
+       centred on the middle of the crop, so the title would run off too:
+       there it goes on two lines over that middle instead, still on the
+       open ground above the top road. layoutTitle() switches between the
+       two when the screen crosses the phone width. */
+    var title = document.createElementNS(NS, 'text');
+    title.setAttribute('class', 'map-title');
+    title.setAttribute('font-size', MAP_TITLE.s);
+    title.setAttribute('text-anchor', 'middle');
+    title.setAttribute('data-title', '1');
+    MAP_TITLE.lines.forEach(function (line) {
+      var ts = document.createElementNS(NS, 'tspan');
+      ts.textContent = line;
+      title.appendChild(ts);
+    });
+    titleEl = title;
+    layoutTitle();
+    frag.appendChild(title);
 
     /* The spots nobody has taken yet say so on the map, and flash to catch
        the eye -- they are the ones Ketaki is trying to sell.
@@ -752,6 +810,7 @@
       if (t.hasAttribute('textLength')) return false;           // the credit
       if (t.hasAttribute('transform')) return false;            // rotated signs
       if (t.hasAttribute('data-hall')) return false;            // the hall's lines
+      if (t.hasAttribute('data-title')) return false;           // the map's title
       return true;
     }).map(function (t) {
       var b = t.getBBox();
@@ -1563,6 +1622,7 @@
   if (PHONE) {
     var onShape = function () {
       placeCard();
+      layoutTitle();
       togglePanel(!isPhone() || panel.classList.contains('open'), true);
       sheetInset();
       remeasureList();

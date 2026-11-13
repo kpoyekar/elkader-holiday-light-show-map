@@ -52,6 +52,21 @@
   font-display: swap;
 }
 
+/* The map's title only (13 Nov 2026), in the City site's heading face:
+   Playfair Display Regular, cut down to the letters of "Try out our NEW
+   interactive map!" (2.7 KB). A subset is a Modified Version under the
+   font's licence (assets/fonts/map-title-serif-OFL.txt), and "Playfair
+   Display" is a Reserved Font Name there, so it goes by a name of its own.
+   Change the title's wording and the font has to be cut again for any new
+   letters. */
+@font-face {
+  font-family: "Elkader Map Title";
+  src: url("assets/fonts/map-title-serif.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
 * { box-sizing: border-box; }
 
 /* An author `display` beats the browser's own rule for [hidden], and several
@@ -177,6 +192,10 @@ html, body {
 .textlayer text {
   font-family: var(--font);
   white-space: pre;
+}
+.textlayer text.map-title {
+  font-family: "Elkader Map Title", "Playfair Display", Georgia, serif;
+  fill: var(--navy-ink);
 }
 
 /* ---------- the lit bulb ---------- */
