@@ -68,6 +68,13 @@ html, body {
   color: var(--navy-ink);
   -webkit-text-size-adjust: 100%;
 }
+/* On a computer, though, a scroll over the map goes on to the page around
+   it, since the wheel no longer zooms (13 Nov 2026; app.js). Sideways it
+   still stops here, so a trackpad swipe over the map is not taken for the
+   browser's Back. On a phone nothing gets out, as before. */
+@media (min-width: 661px) {
+  html, body { overscroll-behavior-y: auto; }
+}
 
 .hls {
   position: absolute;

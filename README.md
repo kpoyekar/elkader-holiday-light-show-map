@@ -40,20 +40,53 @@ stamp and the asset keys match what you are pushing.
 ## On the GoDaddy site
 
 The City's page does not host the map; it frames it from GitHub Pages. In
-the GoDaddy editor, an HTML section carries this and nothing else:
+the GoDaddy editor, an HTML section ("Try out our NEW interactive map!")
+carries the frame and, since 13 Nov 2026, a short script that makes it full
+width. Its Custom Code, exactly as published, is kept in
+`../godaddy-embed-snippet.html`; the frame part of it is:
 
 ```html
 <iframe src="https://kpoyekar.github.io/elkader-holiday-light-show-map/"
-        title="Elkader Holiday Light Show — interactive map of the displays"
-        style="display:block; width:100%; height:80vh; min-height:600px; border:0"
+        title="Elkader Holiday Light Show map of the displays"
+        style="display:block; width:100%; height:720px; border:0"
         loading="lazy" allow="fullscreen"></iframe>
 ```
 
 The map fills whatever height the frame gives it (see *Fitting a fixed-height
-box*), so the height is set here, on the frame: four fifths of the screen,
-never under 600px. It sits above the "Reserve your spot today!" section,
+box*). The frame says 720px, and since 13 Nov 2026 the script after it makes
+it as tall as the window on a computer (720px at least), setting both the map
+frame and GoDaddy's own frame around it; GoDaddy animates that over 1.5s. On
+a phone (under 660px wide) it stays 720px: the map takes the swipes, so a map
+as tall as the screen would leave nothing to scroll the page by. (An earlier
+note here had 80vh with a 600px floor; what was on the site on 13 Nov 2026
+was a plain 720px.) The section's Forced Height is blank.
+
+Full width (asked for on 13 Nov 2026): GoDaddy holds an HTML section to the
+page's text column and has no setting to let it out. But it runs the
+section's code in a frame of its own on the City's own domain, so a script
+in that code can reach the frame and stretch it to both edges of the window,
+and again on every resize. Tried on the live page before it went in (edge to
+edge at 375, 1125 and 1440 wide, no sideways scroll, follows a resize), then
+published from the GoDaddy editor on 13 Nov 2026 and checked on the live
+page at 1440 wide. The window-height part went in the same day: checked live
+in a 1728x941 window, where the map came out 1728x941. GoDaddy reloads the
+section's frame once after the page loads, which is harmless here, since the
+script is part of the section and runs again. If GoDaddy ever stops running scripts in HTML sections the
+map simply goes back to the column width. It sits above the "Reserve your spot today!" section,
 since 28 Oct 2026. Pushing to GitHub updates the embedded map on its own; the
 GoDaddy page itself never needs touching again for a new build.
+
+Only the buttons zoom on a computer (v113, 13 Nov 2026). Once the map stood
+a whole screen tall in the City's page, a mouse wheel that zoomed it caught
+everyone scrolling down the page. So the wheel now scrolls the page past the
+map, and a double-click no longer zooms; the + and - buttons (and the + and
+- keys) do. A trackpad pinch is stopped outright, so it zooms neither the map
+nor the whole page. Letting the scroll out takes `overscroll-behavior-y:
+auto` on the map's own page at computer widths in style.css: with `none`, as
+before, a scroll that reached the map stopped there. Phones are as they were:
+pinch and double tap zoom, and nothing scrolls out of the map. Tried in a
+page nested the way GoDaddy nests it: a real wheel over the map scrolled the
+page 300px and left the zoom alone.
 
 ## What to upload
 
@@ -109,6 +142,18 @@ after `app.js` has filled it in. Events: `bulb_tap`, `list_pick`,
 events carry `display_name` and `display_number`. If the card's ids
 (`card`, `cardName`, `cardN`, `markers`, `list`, `q`) are ever renamed,
 change them in `analytics.js` too.
+
+Since v113 it sends nothing from `localhost` or the claude.ai preview
+(`*.claudeusercontent.com`), so trying a build out is not counted as a
+visit. The GitHub Pages address and the City's page both still count.
+
+The K8Ki website link on spot 14's card carries UTM tags
+(`utm_source=holiday-light-show-map&utm_medium=referral&utm_campaign=design-credit`),
+so Ketaki's own analytics can tell visits that came from the map. They were
+put straight into `data.js` on 13 Nov 2026 (commit a0029f5) and now come
+from `HAND_LINKS` in `read_links.py`, which is not put through the cleaner
+that strips UTM tags from every other link, so a rebuild keeps them (checked:
+a full rebuild gives the same `data.js`, byte for byte).
 
 ## Source
 

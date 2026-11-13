@@ -1462,14 +1462,22 @@
 
   /* ---------- wheel + keys ---------- */
 
+  /* On a computer only the + and - buttons zoom (Ketaki, 13 Nov 2026). The
+     map stands a screen tall in the City's page, and a wheel that zoomed it
+     caught everyone scrolling down the page. So the wheel is left alone and
+     scrolls the page past the map (style.css lets the scroll out to the
+     page); until then it zoomed. A trackpad pinch arrives as a wheel with
+     ctrlKey set, and is stopped: it zooms neither the map nor, as it would
+     by default, the whole page. A touch screen's pinch comes through the
+     pointer handlers above, not here, and still zooms. */
   stage.addEventListener('wheel', function (e) {
-    e.preventDefault();
-    var r = stage.getBoundingClientRect();
-    var f = Math.pow(1.0016, -e.deltaY);
-    setScale(view.s * f, e.clientX - r.left, e.clientY - r.top);
+    if (e.ctrlKey) e.preventDefault();
   }, { passive: false });
 
+  /* Nor does a double-click zoom on a computer, for the same reason: only
+     the buttons. A phone keeps it, as a double tap. */
   stage.addEventListener('dblclick', function (e) {
+    if (!isPhone()) return;
     var r = stage.getBoundingClientRect();
     setScale(view.s * 1.8, e.clientX - r.left, e.clientY - r.top);
   });

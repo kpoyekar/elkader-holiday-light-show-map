@@ -21,6 +21,13 @@
 (function () {
   'use strict';
 
+  /* Real visitors only: nothing is sent from a copy on this computer
+     (localhost) or from the claude.ai preview, where the map is tried out
+     before it goes live and every test load counted as a visit (13 Nov 2026). */
+  var host = location.hostname;
+  if (/^(localhost|127\.0\.0\.1|\[::1\])$/.test(host) ||
+      /(^|\.)claudeusercontent\.com$/.test(host)) return;
+
   var GA_ID = 'G-Y063ZQXBYL';
   var embedded = window.top !== window.self;
 
