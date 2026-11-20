@@ -177,10 +177,27 @@
   /* The smallest a marker gets on screen, in CSS px: a fingertip. */
   var MK_MIN = 34;
 
+  /* On a phone inside another page (the City's), the map at its opening zoom
+     is exactly a screen tall and only pans sideways, so an up-or-down swipe
+     on it is handed to the browser and scrolls the City's page instead
+     (style.css, .page-scroll). Without that the map filled the phone and
+     caught every swipe, with no way down the page (Ketaki, 20 Nov 2026).
+     Zoomed in past the opening view, the map takes every swipe again. Only
+     worked out when the zoom changes, not on every frame of a pan. */
+  var EMBEDDED = window.self !== window.top;
+  var pageScrollAt = null;
+  function pageScroll() {
+    if (view.s === pageScrollAt) return;
+    pageScrollAt = view.s;
+    var on = EMBEDDED && isPhone() && view.s <= minScale() * 1.01;
+    document.documentElement.classList.toggle('page-scroll', on);
+  }
+
   function apply() {
     canvas.style.transform =
       'translate(' + view.x + 'px,' + view.y + 'px) scale(' + view.s + ')';
     canvas.style.setProperty('--s', view.s);
+    pageScroll();
     moving();
     /* Each marker is the size of its own bulb, so it grows with the map and
        the tap target is the bulb you see, at any zoom -- zoomed right in, a
@@ -389,6 +406,47 @@
       return kind.label + (distinct ? ' (' + hosts[i] + ')'
                                     : ' ' + (i + 1) + ' of ' + hrefs.length);
     });
+  }
+
+  /* ---------- the People's Choice vote ---------- */
+
+  /* People vote on the committee's own Google Form, which the build puts in
+     data.js (DATA.vote: its address and the favourite-display question's
+     entry number). The map, the list and the phone's bar link to the form as
+     it is; each display's card links to it with that display already ticked,
+     by Google's pre-fill link -- spot.vote is the option's exact wording on
+     the form. Every link opens in a new tab. */
+  function voteLink(option) {
+    var v = DATA.vote;
+    if (!v) return null;
+    if (!option) return v.form;
+    return v.form + '?usp=pp_url&' + v.entry + '=' +
+      encodeURIComponent(option).replace(/%20/g, '+');
+  }
+
+  (function wireVote() {
+    var els = document.querySelectorAll('[data-vote]');
+    for (var k = 0; k < els.length; k++) {
+      if (els[k].id === 'cardVote') continue;      // filled per display, below
+      var href = voteLink(null);
+      if (href) els[k].href = href;
+      else els[k].hidden = true;                   // no form in the data: no vote
+    }
+  })();
+
+  function fillVote(sp) {
+    var a = document.getElementById('cardVote');
+    if (!a) return;
+    var href = sp.vote ? voteLink(sp.vote) : null;
+    if (href) {
+      a.href = href;
+      a.setAttribute('aria-label', 'Vote for ' + sp.name +
+        ' in the People’s Choice Award (opens the vote form)');
+      a.hidden = false;
+    } else {
+      a.removeAttribute('href');
+      a.hidden = true;
+    }
   }
 
   function fillLinks(sp) {
@@ -1156,6 +1214,7 @@
     }
 
     fillLinks(sp);
+    fillVote(sp);
 
     document.getElementById('cardName').textContent = rowName(row);
     /* The bulbs are pictures as far as a screen reader is concerned, so the
@@ -1623,6 +1682,7 @@
     var onShape = function () {
       placeCard();
       layoutTitle();
+      pageScrollAt = null;          // phone or not decides the swipes too
       togglePanel(!isPhone() || panel.classList.contains('open'), true);
       sheetInset();
       remeasureList();

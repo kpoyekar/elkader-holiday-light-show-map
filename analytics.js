@@ -17,6 +17,9 @@
      map_search      what people typed in the search box (sent once they
                      stop typing for a second and a half)
      events_open     the Floral Hall events card opened
+     vote_click      a link to the People's Choice vote form, with
+                     `vote_from` (map, list, tab or card) and, from a card,
+                     the display
    Every display event carries `display_name` and `display_number`. */
 (function () {
   'use strict';
@@ -84,6 +87,22 @@
   document.addEventListener('click', function (e) {
     var t = e.target;
     if (!t || !t.closest) return;
+
+    /* The People's Choice vote (20 Nov 2026): which of the four links was
+       used -- the map's button, the list's banner, the phone's tab, or a
+       display's card -- and, from a card, which display it was for. The
+       votes themselves are counted by the Google Form, not here. */
+    var vote = t.closest('a[data-vote]');
+    if (vote) {
+      var where = vote.getAttribute('data-vote');
+      var vd = where === 'card' ? (currentDisplay() || {}) : {};
+      send('vote_click', {
+        vote_from: where,
+        display_name: vd.display_name || '',
+        display_number: vd.display_number || ''
+      });
+      return;
+    }
 
     var link = t.closest('a.card-link');
     if (link) {

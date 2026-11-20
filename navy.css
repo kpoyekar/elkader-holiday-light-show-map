@@ -112,3 +112,4 @@ html, body { color: var(--text); }
 }
 .tab { background: var(--deep); color: var(--text); }
 .tab.is-active { background: var(--gold); color: #0d2a44; }
+.tab.tab-vote { color: var(--gold); }

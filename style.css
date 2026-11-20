@@ -90,6 +90,15 @@ html, body {
 @media (min-width: 661px) {
   html, body { overscroll-behavior-y: auto; }
 }
+/* On a phone, inside the City's page, at the opening zoom: the map is a
+   screen tall there and only pans sideways, so an up-or-down swipe on it
+   belongs to the page and scrolls the City's page past the map. Without
+   this the map filled the phone's screen and caught every swipe, and there
+   was no way down the page (Ketaki, 20 Nov 2026). app.js sets .page-scroll
+   while that holds; zoomed in, the map takes every swipe again. */
+html.page-scroll,
+html.page-scroll body { overscroll-behavior-y: auto; }
+html.page-scroll .stage { touch-action: pan-y; }
 
 .hls {
   position: absolute;
@@ -396,21 +405,24 @@ html, body {
 }
 .corner > * { pointer-events: auto; }
 
-/* The sponsor credit, laid out as Ketaki's own lock-up: two lines of plain
-   text, the wordmark, then DESIGN STUDIO in bold, spaced out to the
+/* The sponsor credit, laid out as Ketaki's own lock-up: "Interactive Map
+   by", the wordmark, then DESIGN STUDIO in bold, spaced out to the
    wordmark's width. On a phone's map it stands on a card (see the phone
    rules). Its height is what sets its size:
-   the four pieces are spread over it, and the wordmark's width is chosen so
+   the pieces are spread over it, and the wordmark's width is chosen so
    the proportions match the lock-up. It stood exactly as tall as the column
    of zoom buttons beside it (134px, top of + to bottom of fit) until 28 Oct
    2026, when Ketaki asked for it 25% smaller: so 100px, bottom-aligned with
-   the fit button, and every size below is three quarters of what it was. */
+   the fit button, and every size below is three quarters of what it was.
+   Until 20 Nov 2026 it read "Interactive Map / Designed & Sponsored By";
+   Ketaki cut it to "Interactive Map by", and the height lost that one
+   line (13px), so the gaps between the pieces stay as they were. */
 .credit {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: space-between;
-  height: 100px;
+  height: 87px;
   padding: 0;
   border: 0;                   /* a button since 8 Nov 2026: it opens spot 14 */
   background: none;
@@ -438,6 +450,83 @@ html, body {
   gap: 7px;
 }
 .zoom .btn { box-shadow: 0 2px 10px rgba(8,32,47,.22); }
+
+/* ---------- the People's Choice vote ---------- */
+/* Four links to the committee's Google Form (index.html says where; app.js
+   gives them the address): gold, the show's own colour, so they read as one
+   family. Ketaki, 20 Nov 2026. */
+.vote-pill, .vote-banner, .card-vote {
+  display: flex;
+  align-items: center;
+  text-decoration: none;
+  -webkit-tap-highlight-color: transparent;
+}
+.vote-pill svg, .vote-banner svg, .card-vote svg, .tab-vote svg {
+  flex: none;
+  width: 20px;
+  height: 20px;
+}
+.vote-pill span, .vote-banner span, .card-vote span {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  line-height: 1.15;
+}
+.vote-pill small, .vote-banner small, .card-vote small {
+  font-size: 12px;
+  font-weight: 400;
+}
+.vote-pill:hover, .card-vote:hover { filter: brightness(1.06); }
+.vote-pill:focus-visible, .vote-banner:focus-visible, .card-vote:focus-visible {
+  outline: 2px solid var(--gold);
+  outline-offset: 3px;
+}
+
+/* On the map, bottom left, opposite the credit and the zoom buttons; on a
+   phone the credit holds that corner and the Vote tab does this job. */
+.vote-pill {
+  position: absolute;
+  left: 16px;
+  bottom: 16px;
+  z-index: 6;
+  gap: 10px;
+  padding: 11px 20px 11px 15px;
+  border-radius: 999px;
+  background: var(--gold);
+  color: #0d2a44;
+  font-size: 15px;
+  box-shadow: 0 4px 18px rgba(0,0,0,.35);
+}
+.vote-pill small { opacity: .78; }
+
+/* At the top of the list, under the show logo, above the search. */
+.vote-banner {
+  gap: 11px;
+  margin: 0 16px 12px;
+  padding: 10px 13px;
+  border: 1px solid rgba(243, 192, 91, .55);
+  border-radius: 10px;
+  background: rgba(243, 192, 91, .12);
+  color: var(--navy-ink);
+  font-size: 14px;
+}
+.vote-banner svg, .vote-banner i { color: var(--gold); }
+.vote-banner small { color: var(--muted); }
+.vote-banner i { margin-left: auto; font-style: normal; font-size: 18px; }
+.vote-banner:hover { background: rgba(243, 192, 91, .2); }
+.panel.events-open .vote-banner { display: none; }
+
+/* On every display's card, above Previous / Next. */
+.card-vote {
+  gap: 10px;
+  margin: 12px 0 4px;
+  padding: 11px 14px;
+  border-radius: 10px;
+  background: var(--gold);
+  color: #0d2a44;
+  font-size: 15px;
+}
+.card-vote small { opacity: .78; }
 
 /* ---------- build stamp ---------- */
 /* Top left, the one corner nothing else uses (bottom left until the credit
@@ -946,7 +1035,7 @@ html, body {
     left: 0; right: 0; bottom: 0;
     height: var(--tab-h);
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: 1fr 1fr 1fr;    /* Map, Displays, Vote */
     background: #fff;
     border-top: 1px solid #e3e8ec;
     box-shadow: 0 -4px 16px rgba(8,32,47,.12);
@@ -974,6 +1063,11 @@ html, body {
   .tab > svg { width: 16px; height: 16px; }
   .tab-bulb { display: block; width: 13px; height: 18px; }
   .tab-bulb svg { display: block; width: 100%; height: 100%; }
+  /* The vote: a link to the form, not a view of the map. */
+  .tab-vote { text-decoration: none; }
+  .tab-vote svg { width: 16px; height: 16px; color: var(--gold); }
+  /* The map's vote button is for a computer; the Vote tab does its job. */
+  .vote-pill { display: none; }
 
   /* The list: the whole screen above the bar, in from the right. */
   .panel {

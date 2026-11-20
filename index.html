@@ -7,9 +7,9 @@
 <meta name="description" content="Interactive map of the Elkader Holiday Light Show drive-through at the City Park and Campground. Find all 70 display spots and who sponsored them.">
 <meta name="theme-color" content="#0d2a44">
 <meta name="color-scheme" content="dark">
-<link rel="stylesheet" href="style.css?v=704a863c">
+<link rel="stylesheet" href="style.css?v=48d70195">
 <!-- The navy look, over the light sheet (13 Nov 2026). -->
-<link rel="stylesheet" href="navy.css?v=704a863c">
+<link rel="stylesheet" href="navy.css?v=48d70195">
 </head>
 <body>
 
@@ -21,7 +21,7 @@
       <!-- The artwork, vector all the way through: every shape traced out of
            the Canva export, so nothing here is a picture of a map. It carries
            no lettering -- that is drawn over it, below. -->
-      <img class="basemap" id="basemap" src="assets/map.svg?v=704a863c"
+      <img class="basemap" id="basemap" src="assets/map.svg?v=48d70195"
            alt="Map of the Holiday Light Show route through the Elkader City Campground">
       <!-- Every label on the map is drawn here as vector text, so it stays
            sharp at any zoom. The artwork underneath carries no lettering. -->
@@ -40,7 +40,7 @@
        printed where it can be read off the screen. _build/stamp.py writes the
        text; app.js reveals it on preview hosts only, so it never reaches the
        live site. -->
-  <p class="build" id="build" hidden>v116 &middot; 13 Nov 2026</p>
+  <p class="build" id="build" hidden>v117 &middot; 20 Nov 2026</p>
 
   <!-- The sponsor credit and, to its right, the zoom buttons, bottom right of
        the map on a computer (back there on 13 Nov 2026, after five days
@@ -52,10 +52,9 @@
        is the data-open number, here and on the phone's copy below. -->
   <div class="corner">
     <button class="credit" type="button" data-open="14"
-       aria-label="Interactive map designed and sponsored by K8Ki Design Studio. Shows K8Ki's display, spot 14.">
-      <span class="credit-l1">Interactive Map</span>
-      <span class="credit-l2">Designed &amp; Sponsored By</span>
-      <img class="credit-mark" src="assets/k8ki-logo.svg?v=704a863c" alt="K8Ki" width="521" height="144">
+       aria-label="Interactive map by K8Ki Design Studio. Shows K8Ki's display, spot 14.">
+      <span class="credit-l1">Interactive Map by</span>
+      <img class="credit-mark" src="assets/k8ki-logo.svg?v=48d70195" alt="K8Ki" width="521" height="144">
       <span class="credit-l3">Design Studio</span>
     </button>
     <div class="zoom">
@@ -66,6 +65,19 @@
       </button>
     </div>
   </div>
+
+  <!-- ===== the People's Choice vote =====
+       People vote on the committee's own Google Form; every vote link on the
+       page opens it in a new tab (app.js gives them its address, from
+       data.js). Four ways in (Ketaki, 20 Nov 2026): this button on the map,
+       bottom left, on a computer; a banner at the top of the list; a gold
+       button on every display's card, which opens the form with that display
+       already ticked; and a Vote tab in the phone's bar. -->
+  <a class="vote-pill" data-vote="map" target="_blank" rel="noopener"
+     aria-label="Vote for your favorite display in the People's Choice Award (opens the vote form)">
+    <svg viewBox="0 0 20 20" aria-hidden="true" focusable="false"><path d="M10 1.6l2.55 5.25 5.75.8-4.18 4.03 1.02 5.72L10 14.67 4.86 17.4l1.02-5.72L1.7 7.65l5.75-.8z" fill="currentColor"/></svg>
+    <span><b>Vote for your favorite display</b><small>People&rsquo;s Choice Award</small></span>
+  </a>
 
   <!-- ===== the display list =====
        On a wide screen: not a drawer. It is always open and nothing closes
@@ -81,7 +93,7 @@
        carries it is off screen. -->
   <aside class="panel" id="panel" aria-label="All displays">
     <div class="panel-top">
-      <img class="panel-logo" src="assets/show-logo.webp?v=704a863c" width="393" height="391"
+      <img class="panel-logo" src="assets/show-logo.webp?v=48d70195" width="393" height="391"
            alt="Elkader Holiday Light Show">
       <!-- How many displays a search is showing, for a screen reader only.
            The number on screen is in the search box ("Search 70 displays
@@ -104,6 +116,12 @@
       <div class="events-body" id="eventsBody"></div>
       <a class="events-fb" href="https://www.facebook.com/elkaderholidaylights" target="_blank" rel="noopener noreferrer">Watch our Facebook page for updates &rarr;</a>
     </section>
+    <a class="vote-banner" data-vote="list" target="_blank" rel="noopener"
+       aria-label="People's Choice Award: vote for your favorite display (opens the vote form)">
+      <svg viewBox="0 0 20 20" aria-hidden="true" focusable="false"><path d="M10 1.6l2.55 5.25 5.75.8-4.18 4.03 1.02 5.72L10 14.67 4.86 17.4l1.02-5.72L1.7 7.65l5.75-.8z" fill="currentColor"/></svg>
+      <span><b>People&rsquo;s Choice Award</b><small>Vote for your favorite display</small></span>
+      <i aria-hidden="true">&rarr;</i>
+    </a>
     <div class="panel-head">
       <label class="search">
         <svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="9" cy="9" r="5.5" stroke="currentColor" stroke-width="2" fill="none"/><path d="M13.5 13.5 17 17" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
@@ -139,6 +157,11 @@
       <a class="card-book" id="cardBook" target="_blank" rel="noopener" hidden></a>
       <!-- Previous and Next say where they go: the spot and the name, so
            you know what you are stepping to before you tap. -->
+      <!-- The vote, with this display already ticked on the form (app.js). -->
+      <a class="card-vote" id="cardVote" data-vote="card" target="_blank" rel="noopener" hidden>
+        <svg viewBox="0 0 20 20" aria-hidden="true" focusable="false"><path d="M10 1.6l2.55 5.25 5.75.8-4.18 4.03 1.02 5.72L10 14.67 4.86 17.4l1.02-5.72L1.7 7.65l5.75-.8z" fill="currentColor"/></svg>
+        <span><b>Vote for this display</b><small>People&rsquo;s Choice Award</small></span>
+      </a>
       <div class="card-nav">
         <button class="btn btn-ghost" id="prev">
           <span class="nav-k" id="prevK">&larr; Previous</span>
@@ -154,20 +177,20 @@
          a phone, where the list fills the screen and the corner of the map
          that carries the credit on a wide screen is not on view. -->
     <button class="credit credit-foot" type="button" data-open="14"
-       aria-label="Interactive map designed and sponsored by K8Ki Design Studio. Shows K8Ki's display, spot 14.">
-      <span class="credit-l1">Interactive Map</span>
-      <span class="credit-l2">Designed &amp; Sponsored By</span>
-      <img class="credit-mark" src="assets/k8ki-logo.svg?v=704a863c" alt="K8Ki" width="521" height="144">
+       aria-label="Interactive map by K8Ki Design Studio. Shows K8Ki's display, spot 14.">
+      <span class="credit-l1">Interactive Map by</span>
+      <img class="credit-mark" src="assets/k8ki-logo.svg?v=48d70195" alt="K8Ki" width="521" height="144">
       <span class="credit-l3">Design Studio</span>
     </button>
   </aside>
 
-  <!-- ===== on a phone: MAP / DISPLAYS =====
-       Two buttons across the foot of the screen. MAP shows the map; DISPLAYS
-       brings the list up over it, full screen. Hidden on a wide screen, where
-       the list stands beside the map and nothing needs switching. The DISPLAYS
-       icon is the map's own bulb, drawn in by app.js. -->
-  <nav class="tabs" aria-label="Map or the list of displays">
+  <!-- ===== on a phone: MAP / DISPLAYS / VOTE =====
+       Three buttons across the foot of the screen. MAP shows the map; DISPLAYS
+       brings the list up over it, full screen; VOTE opens the People's Choice
+       form (since 20 Nov 2026). Hidden on a wide screen, where the list stands
+       beside the map and nothing needs switching. The DISPLAYS icon is the
+       map's own bulb, drawn in by app.js. -->
+  <nav class="tabs" aria-label="Map, the list of displays, or the vote">
     <button class="tab is-active" id="tabMap" type="button" aria-pressed="true">
       <svg viewBox="0 0 20 20" aria-hidden="true" focusable="false"><path d="M3 5l5-2 4 2 5-2v12l-5 2-4-2-5 2z" stroke="currentColor" stroke-width="1.8" fill="none" stroke-linejoin="round"/></svg>
       <span>Map</span>
@@ -176,6 +199,11 @@
       <span class="tab-bulb" id="tabBulb"></span>
       <span>Displays</span>
     </button>
+    <a class="tab tab-vote" data-vote="tab" target="_blank" rel="noopener"
+       aria-label="Vote for your favorite display (opens the vote form)">
+      <svg viewBox="0 0 20 20" aria-hidden="true" focusable="false"><path d="M10 1.6l2.55 5.25 5.75.8-4.18 4.03 1.02 5.72L10 14.67 4.86 17.4l1.02-5.72L1.7 7.65l5.75-.8z" fill="currentColor"/></svg>
+      <span>Vote</span>
+    </a>
   </nav>
 
 
@@ -222,11 +250,11 @@
   </ol>
 </template>
 
-<script src="data.js?v=704a863c"></script>
-<script src="app.js?v=704a863c"></script>
-<script src="navy.js?v=704a863c"></script>
+<script src="data.js?v=48d70195"></script>
+<script src="app.js?v=48d70195"></script>
+<script src="navy.js?v=48d70195"></script>
 <!-- Google Analytics for the map: views, bulb taps, list picks, sponsor
      link clicks and searches. See analytics.js. -->
-<script src="analytics.js?v=704a863c"></script>
+<script src="analytics.js?v=48d70195"></script>
 </body>
 </html>

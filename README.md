@@ -154,7 +154,8 @@ analytics are not involved.
 It keeps out of `app.js` entirely: it listens for clicks and reads the card
 after `app.js` has filled it in. Events: `bulb_tap`, `list_pick`,
 `display_view` (any card opened), `sponsor_link`, `map_search`,
-`events_open`, plus the usual `page_view` with `embedded` yes/no. Display
+`events_open`, `vote_click` (since v117: `vote_from` map, list, tab or card,
+and the display when it was a card's), plus the usual `page_view` with `embedded` yes/no. Display
 events carry `display_name` and `display_number`. If the card's ids
 (`card`, `cardName`, `cardN`, `markers`, `list`, `q`) are ever renamed,
 change them in `analytics.js` too.
@@ -179,6 +180,51 @@ one label, and no QR code, logo or internal notes. Page 1 is the older layout
 and is not used.
 
 ## How it's put together
+
+### The People's Choice vote (20 Nov 2026)
+
+People vote on Ketaki's Google Form, and only there ("people should vote on
+this form only"); the map just sends them to it. She picked all four ways in
+from a mock of the same day, so v117 has:
+
+* **on every card**, a gold "Vote for this display" button. Its link opens the
+  form with that display already ticked (a pre-filled link,
+  `?usp=pp_url&entry.986646154=<option>`); the voter still presses Submit.
+* **on the map**, bottom left on a computer, a gold "Vote for your favorite
+  display" button. It opens the form blank. Hidden on a phone, where the bar
+  has a tab for it instead.
+* **at the top of the list**, a gold banner that does the same. It is put away
+  while the Floral Hall events page is open.
+* **on a phone, a third tab, VOTE**, in the bar beside MAP and DISPLAYS (the
+  three are a third of the width each). It opens the form rather than a view.
+
+All four are `<a data-vote>` links in `index.html`; `wireVote()` in app.js
+puts the form's address on them from `data.js`, and `fillVote()` sets the
+card's for each display. A display's choice on the form is not always its
+name on the map, so `build_data.py` holds the pairs (`VOTE` for the form's
+address and question, `VOTE_OPTIONS` for the 61 names), and the build stops
+if a named spot has no option, rather than ship a card with no button. Two
+displays share one choice on the form: Central State Bank and Rural Route
+Ramblers Car Club are both "Rural Route Ramblers Car Club/Central State Bank".
+If the form's wording changes, the pre-filled tick silently stops working
+(the form opens blank), so change `VOTE_OPTIONS` to match and rebuild. If
+the question is replaced, its `entry.` number changes too: open the form's
+"Get pre-filled link" and copy it from there.
+
+Analytics counts the clicks (`vote_click`, with where it came from); the
+votes themselves are only on the form.
+
+### Scrolling the City page past the map on a phone (20 Nov 2026)
+
+In the City's page the map is a 720px frame, and on a phone a swipe that
+starts on it used to pan the map, so there was no way to scroll the page on
+past it. Now, while the map is embedded, on a phone, and at its opening zoom
+(`pageScroll()` in app.js, which sets `html.page-scroll`), an up-and-down
+swipe scrolls the page and a sideways one pans the map. Zoom in with the +
+button and the map takes every swipe again, to pan around; zoom back out
+(the − button, or the one under it that returns to the opening view) and
+the page has its scroll back. Opened on its own (not in a frame)
+nothing changes.
 
 ### The title is on the map (13 Nov 2026)
 
@@ -871,13 +917,16 @@ needs the card. It covers no bulb in any window 1152px wide or more; in a
 1024x640 window it touches the edge of bulb 6, and on an upright tablet
 (768 wide) its lettering lies over bulbs 2-4 until the map is panned.
 
-Set the way Ketaki set it in Canva, as four centred lines:
+Three centred lines since 20 Nov 2026 (v117), when Ketaki asked for "just
+say interactive map by" (until then it was four, the way she set it in
+Canva, with "Interactive Map" over "Designed & Sponsored by"). `.credit` is
+87px tall now rather than 100, so the wordmark keeps its size and the credit
+still sits on the zoom buttons' bottom line:
 
 ```
-   Interactive Map
-Designed & Sponsored by
-       [ K8Ki ]
-    DESIGN STUDIO
+Interactive Map by
+     [ K8Ki ]
+  DESIGN STUDIO
 ```
 
 Both are children of `.corner`, a flex row that stands clear of the open
@@ -902,8 +951,8 @@ labels. The credit is the list-foot size on a phone 812px tall or taller and shr
 with shorter screens, as the map does (`--k` in style.css).
 
 Its size is its height. It stood as tall as the zoom column (134px) until
-28 Oct 2026, when Ketaki asked for it 25% smaller: `.credit` is 100px tall
-now, bottom-aligned with the fit button, with the type and the wordmark at
+28 Oct 2026, when Ketaki asked for it 25% smaller: `.credit` was 100px tall
+from then (87px since the third line went, 20 Nov 2026), bottom-aligned with the fit button, with the type and the wordmark at
 three quarters of their old sizes (11px, 16px, a 159px wordmark).
 
 It used to be printed on the map itself. Ketaki set it in Canva, inside the
@@ -1119,7 +1168,8 @@ width beside the map — the page is the layout Ketaki chose on the canvas on
 28 Oct 2026 (row F there): the bar from the Art in the Park site, the
 full-screen list, the bottom-sheet card.
 
-* **A bar across the foot, MAP and DISPLAYS.** `.tabs`, 60px (`--tab-h`), the
+* **A bar across the foot, MAP and DISPLAYS** (and VOTE since 20 Nov 2026, a
+  link to the form, not a view). `.tabs`, 60px (`--tab-h`), the
   active one navy. The DISPLAYS icon is the map's own bulb, drawn in by
   `drawTabBulb()` from `bulbArt` as a silhouette in the button's colour. The
   stage stops at the bar (`.stage { bottom: var(--tab-h) }`), so the opening
